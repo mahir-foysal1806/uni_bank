@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <title>UniQBank — University Question Bank</title>
 
   <style>
+
     /* =========================
        RESET
     ========================= */
@@ -64,6 +66,7 @@
     .header {
       background: #ffffff;
       border-bottom: 1px solid #e5e9f0;
+
       position: sticky;
       top: 0;
       z-index: 100;
@@ -71,23 +74,29 @@
 
     .header-inner {
       min-height: 72px;
+
       display: flex;
       align-items: center;
       justify-content: space-between;
+
       gap: 20px;
     }
 
     .brand {
       display: flex;
       align-items: center;
+
       gap: 11px;
+
       color: #172b4d;
     }
 
     .brand-icon {
       width: 38px;
       height: 38px;
+
       border-radius: 9px;
+
       background: #172b4d;
       color: #ffffff;
 
@@ -101,26 +110,32 @@
 
     .brand-name {
       font-family: Georgia, "Times New Roman", serif;
+
       font-size: 22px;
       font-weight: 700;
+
       line-height: 1;
     }
 
     .brand-subtitle {
       margin-top: 4px;
+
       color: #8a94a6;
+
       font-size: 11px;
     }
 
     .upload-button {
       display: inline-flex;
       align-items: center;
+
       gap: 7px;
 
       background: #172b4d;
       color: #ffffff;
 
       padding: 10px 16px;
+
       border-radius: 8px;
 
       font-size: 14px;
@@ -133,6 +148,7 @@
 
     .upload-button:hover {
       background: #0f2038;
+
       transform: translateY(-1px);
     }
 
@@ -143,6 +159,7 @@
 
     .hero {
       background: #ffffff;
+
       border-bottom: 1px solid #e5e9f0;
     }
 
@@ -153,9 +170,11 @@
     .eyebrow {
       display: flex;
       align-items: center;
+
       gap: 8px;
 
       color: #2563eb;
+
       font-size: 14px;
       font-weight: 600;
 
@@ -165,7 +184,9 @@
     .eyebrow-dot {
       width: 7px;
       height: 7px;
+
       border-radius: 50%;
+
       background: #2563eb;
     }
 
@@ -173,8 +194,11 @@
       max-width: 760px;
 
       font-family: Georgia, "Times New Roman", serif;
+
       font-size: clamp(34px, 5vw, 52px);
+
       line-height: 1.1;
+
       font-weight: 700;
 
       color: #172b4d;
@@ -190,7 +214,9 @@
       margin-top: 18px;
 
       color: #657184;
+
       font-size: 17px;
+
       line-height: 1.7;
     }
 
@@ -203,9 +229,11 @@
       margin-top: 32px;
 
       background: #f8fafc;
+
       border: 1px solid #e2e8f0;
 
       border-radius: 13px;
+
       padding: 13px;
     }
 
@@ -234,6 +262,7 @@
       transform: translateY(-50%);
 
       color: #94a3b8;
+
       font-size: 18px;
 
       pointer-events: none;
@@ -247,9 +276,11 @@
       background: #ffffff;
 
       border: 1px solid #dce2ea;
+
       border-radius: 8px;
 
       color: #172b4d;
+
       font-size: 14px;
 
       outline: none;
@@ -265,6 +296,7 @@
 
     .filter-select {
       padding: 0 13px;
+
       cursor: pointer;
     }
 
@@ -284,14 +316,17 @@
       height: 48px;
 
       border: none;
+
       border-radius: 8px;
 
       padding: 0 24px;
 
       background: #2563eb;
+
       color: #ffffff;
 
       font-size: 14px;
+
       font-weight: 600;
 
       cursor: pointer;
@@ -303,6 +338,7 @@
 
     .search-button:hover {
       background: #1d4ed8;
+
       transform: translateY(-1px);
     }
 
@@ -310,14 +346,17 @@
       display: inline-block;
 
       margin-top: 11px;
+
       padding-left: 3px;
 
       color: #64748b;
+
       font-size: 13px;
     }
 
     .clear-filters:hover {
       color: #172b4d;
+
       text-decoration: underline;
     }
 
@@ -334,18 +373,23 @@
       border-radius: 8px;
 
       font-size: 14px;
+
       line-height: 1.5;
     }
 
     .success {
       background: #ecfdf3;
+
       border: 1px solid #bbf7d0;
+
       color: #166534;
     }
 
     .error {
       background: #fef2f2;
+
       border: 1px solid #fecaca;
+
       color: #b91c1c;
     }
 
@@ -360,10 +404,13 @@
 
     .results-header {
       display: flex;
+
       align-items: flex-end;
+
       justify-content: space-between;
 
       gap: 20px;
+
       margin-bottom: 22px;
     }
 
@@ -373,6 +420,7 @@
       color: #172b4d;
 
       font-size: 25px;
+
       font-weight: 700;
     }
 
@@ -380,12 +428,15 @@
       margin-top: 5px;
 
       color: #94a3b8;
+
       font-size: 13px;
     }
 
     .mobile-upload {
       color: #2563eb;
+
       font-size: 14px;
+
       font-weight: 600;
     }
 
@@ -411,6 +462,7 @@
       background: #ffffff;
 
       border: 1px solid #e2e8f0;
+
       border-radius: 12px;
 
       padding: 20px;
@@ -418,7 +470,9 @@
       min-height: 290px;
 
       display: flex;
+
       flex-direction: column;
+
       justify-content: space-between;
 
       transition:
@@ -438,7 +492,9 @@
 
     .card-top {
       display: flex;
+
       align-items: flex-start;
+
       justify-content: space-between;
 
       gap: 10px;
@@ -446,26 +502,31 @@
 
     .course-code {
       display: inline-flex;
+
       align-items: center;
 
       padding: 5px 9px;
 
       background: #eff6ff;
+
       color: #1d4ed8;
 
       border-radius: 6px;
 
       font-size: 12px;
+
       font-weight: 700;
     }
 
     .exam-type {
       display: inline-flex;
+
       align-items: center;
 
       padding: 5px 9px;
 
       background: #f8fafc;
+
       color: #64748b;
 
       border: 1px solid #e2e8f0;
@@ -473,6 +534,7 @@
       border-radius: 6px;
 
       font-size: 11px;
+
       font-weight: 600;
 
       white-space: nowrap;
@@ -486,7 +548,9 @@
       color: #172b4d;
 
       font-size: 19px;
+
       line-height: 1.4;
+
       font-weight: 700;
     }
 
@@ -494,17 +558,21 @@
       margin-top: 18px;
 
       display: flex;
+
       flex-direction: column;
+
       gap: 8px;
     }
 
     .detail-row {
       display: flex;
+
       align-items: center;
 
       gap: 7px;
 
       font-size: 13px;
+
       line-height: 1.4;
     }
 
@@ -514,17 +582,21 @@
 
     .detail-value {
       color: #475569;
+
       font-weight: 500;
     }
 
     .card-bottom {
       margin-top: 22px;
+
       padding-top: 14px;
 
       border-top: 1px solid #edf0f4;
 
       display: flex;
+
       align-items: center;
+
       justify-content: space-between;
 
       gap: 10px;
@@ -532,16 +604,21 @@
 
     .download-count {
       color: #94a3b8;
+
       font-size: 12px;
     }
 
     .download-button {
       display: inline-flex;
+
       align-items: center;
+
       justify-content: center;
+
       gap: 7px;
 
       background: #172b4d;
+
       color: #ffffff;
 
       padding: 9px 13px;
@@ -549,6 +626,7 @@
       border-radius: 7px;
 
       font-size: 13px;
+
       font-weight: 600;
 
       transition: background 0.2s ease;
@@ -571,6 +649,7 @@
       background: #ffffff;
 
       border: 1px dashed #cbd5e1;
+
       border-radius: 12px;
 
       padding: 65px 20px;
@@ -587,13 +666,17 @@
       border-radius: 50%;
 
       background: #f1f5f9;
+
       color: #64748b;
 
       display: flex;
+
       align-items: center;
+
       justify-content: center;
 
       font-size: 21px;
+
       font-weight: 700;
     }
 
@@ -603,6 +686,7 @@
       color: #172b4d;
 
       font-size: 21px;
+
       font-weight: 700;
     }
 
@@ -614,6 +698,7 @@
       color: #94a3b8;
 
       font-size: 14px;
+
       line-height: 1.6;
     }
 
@@ -621,17 +706,22 @@
       margin-top: 21px;
 
       display: flex;
+
       align-items: center;
+
       justify-content: center;
 
       gap: 10px;
+
       flex-wrap: wrap;
     }
 
     .secondary-button,
     .primary-button {
       display: inline-flex;
+
       align-items: center;
+
       justify-content: center;
 
       padding: 10px 16px;
@@ -639,6 +729,7 @@
       border-radius: 7px;
 
       font-size: 13px;
+
       font-weight: 600;
     }
 
@@ -646,6 +737,7 @@
       background: #ffffff;
 
       border: 1px solid #dce2ea;
+
       color: #475569;
     }
 
@@ -655,6 +747,7 @@
 
     .primary-button {
       background: #172b4d;
+
       color: #ffffff;
     }
 
@@ -664,11 +757,65 @@
 
 
     /* =========================
+       PAGINATION
+    ========================= */
+
+    .pagination {
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      gap: 16px;
+
+      margin: 35px 0;
+    }
+
+    .pagination-btn {
+      display: inline-block;
+
+      padding: 10px 18px;
+
+      border: 1px solid #ddd;
+
+      border-radius: 6px;
+
+      background: #ffffff;
+
+      color: #222;
+
+      text-decoration: none;
+
+      font-size: 14px;
+
+      font-weight: 500;
+
+      transition: 0.2s ease;
+    }
+
+    .pagination-btn:hover {
+      background: #f5f5f5;
+
+      border-color: #bbb;
+    }
+
+    .pagination-page {
+      font-size: 14px;
+
+      font-weight: 600;
+
+      color: #555;
+    }
+
+
+    /* =========================
        FOOTER
     ========================= */
 
     .footer {
       background: #ffffff;
+
       border-top: 1px solid #e5e9f0;
     }
 
@@ -676,7 +823,9 @@
       min-height: 100px;
 
       display: flex;
+
       align-items: center;
+
       justify-content: space-between;
 
       gap: 20px;
@@ -688,6 +837,7 @@
       color: #172b4d;
 
       font-size: 16px;
+
       font-weight: 700;
     }
 
@@ -695,16 +845,19 @@
       margin-top: 3px;
 
       color: #94a3b8;
+
       font-size: 12px;
     }
 
     .footer-links {
       display: flex;
+
       gap: 20px;
     }
 
     .footer-links a {
       color: #64748b;
+
       font-size: 13px;
     }
 
@@ -728,8 +881,10 @@
       }
 
       .question-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
       }
+
     }
 
 
@@ -762,6 +917,7 @@
 
       .upload-button {
         padding: 9px 12px;
+
         font-size: 12px;
       }
 
@@ -809,6 +965,7 @@
 
       .question-grid {
         grid-template-columns: 1fr;
+
         gap: 14px;
       }
 
@@ -820,12 +977,30 @@
         padding: 25px 0;
 
         flex-direction: column;
+
         text-align: center;
       }
 
       .footer-links {
         gap: 16px;
       }
+
+      .pagination {
+        gap: 10px;
+
+        margin: 28px 0;
+      }
+
+      .pagination-btn {
+        padding: 9px 14px;
+
+        font-size: 13px;
+      }
+
+      .pagination-page {
+        font-size: 13px;
+      }
+
     }
 
 
@@ -854,9 +1029,11 @@
       .exam-type {
         font-size: 10px;
       }
+
     }
 
   </style>
+
 </head>
 
 
@@ -887,6 +1064,16 @@
       typeof filters !== 'undefined' && filters
         ? filters
         : {};
+
+    const currentPage =
+      Number.isInteger(Number(page)) && Number(page) >= 1
+        ? Number(page)
+        : 1;
+
+    const pageLimit =
+      Number.isInteger(Number(limit)) && Number(limit) > 0
+        ? Number(limit)
+        : 12;
   %>
 
 
@@ -920,8 +1107,11 @@
 
 
       <a href="/upload" class="upload-button">
+
         <span>+</span>
+
         <span>Upload Paper</span>
+
       </a>
 
     </div>
@@ -951,7 +1141,11 @@
       <h1 class="hero-title">
 
         Find your university
-        <span>question papers</span>
+
+        <span>
+          question papers
+        </span>
+
         easily.
 
       </h1>
@@ -1008,13 +1202,16 @@
               All Departments
             </option>
 
+
             <% departmentList.forEach(function(dept) { %>
 
               <option
                 value="<%= dept %>"
                 <%= String(activeFilters.department || '') === String(dept) ? 'selected' : '' %>
               >
+
                 <%= dept %>
+
               </option>
 
             <% }); %>
@@ -1033,13 +1230,16 @@
               All Semesters
             </option>
 
+
             <% semesterList.forEach(function(sem) { %>
 
               <option
                 value="<%= sem %>"
                 <%= String(activeFilters.semester || '') === String(sem) ? 'selected' : '' %>
               >
+
                 <%= sem %>
+
               </option>
 
             <% }); %>
@@ -1047,19 +1247,21 @@
           </select>
 
 
-          <!-- Search button -->
+          <!-- Search Button -->
 
           <button
             type="submit"
             class="search-button"
           >
+
             Search
+
           </button>
 
         </div>
 
 
-        <!-- Clear -->
+        <!-- Clear Filters -->
 
         <% if (
           activeFilters.department ||
@@ -1071,7 +1273,9 @@
             href="/"
             class="clear-filters"
           >
+
             Clear all filters →
+
           </a>
 
         <% } %>
@@ -1092,7 +1296,9 @@
     <% if (typeof success !== 'undefined' && success) { %>
 
       <div class="notice success">
+
         <%= success %>
+
       </div>
 
     <% } %>
@@ -1101,7 +1307,9 @@
     <% if (typeof error !== 'undefined' && error) { %>
 
       <div class="notice error">
+
         <%= error %>
+
       </div>
 
     <% } %>
@@ -1130,7 +1338,10 @@
 
           <%= questionList.length %>
 
-          <%= questionList.length === 1 ? 'paper' : 'papers' %>
+          <%= questionList.length === 1
+            ? 'paper'
+            : 'papers'
+          %>
 
           found
 
@@ -1143,7 +1354,9 @@
         href="/upload"
         class="mobile-upload"
       >
+
         + Upload paper
+
       </a>
 
     </div>
@@ -1168,8 +1381,10 @@
 
 
         <p class="empty-description">
+
           Try another search term or clear the filters.
           You can also upload the first paper for this course.
+
         </p>
 
 
@@ -1179,7 +1394,9 @@
             href="/"
             class="secondary-button"
           >
+
             Clear Search
+
           </a>
 
 
@@ -1187,7 +1404,9 @@
             href="/upload"
             class="primary-button"
           >
+
             Upload a Paper
+
           </a>
 
         </div>
@@ -1209,14 +1428,12 @@
 
           <article class="question-card">
 
-
             <div>
 
 
               <!-- Top -->
 
               <div class="card-top">
-
 
                 <span class="course-code">
                   <%= q.course_code %>
@@ -1231,11 +1448,10 @@
 
                 <% } %>
 
-
               </div>
 
 
-              <!-- Title -->
+              <!-- Course Title -->
 
               <h3 class="course-title">
                 <%= q.course_title %>
@@ -1288,11 +1504,10 @@
 
               </div>
 
-
             </div>
 
 
-            <!-- Bottom -->
+            <!-- Card Bottom -->
 
             <div class="card-bottom">
 
@@ -1322,9 +1537,7 @@
 
               </a>
 
-
             </div>
-
 
           </article>
 
@@ -1332,6 +1545,56 @@
 
 
       </div>
+
+
+      <!-- =========================
+           PAGINATION
+      ========================= -->
+
+      <% if (currentPage > 1 || questionList.length === pageLimit) { %>
+
+        <div class="pagination">
+
+
+          <% if (currentPage > 1) { %>
+
+            <a
+              href="/?page=<%= currentPage - 1 %>"
+              class="pagination-btn"
+            >
+
+              ← Previous
+
+            </a>
+
+          <% } %>
+
+
+          <span class="pagination-page">
+
+            Page <%= currentPage %>
+
+          </span>
+
+
+          <% if (questionList.length === pageLimit) { %>
+
+            <a
+              href="/?page=<%= currentPage + 1 %>"
+              class="pagination-btn"
+            >
+
+              Next →
+
+            </a>
+
+          <% } %>
+
+
+        </div>
+
+      <% } %>
+
 
     <% } %>
 
@@ -1380,4 +1643,5 @@
 
 
 </body>
+
 </html>

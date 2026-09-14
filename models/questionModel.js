@@ -64,14 +64,18 @@ async function insertQuestion(data) {
  *
  * @returns {Promise<Array>}
  */
-async function getAllQuestions() {
+async function getAllQuestions(page,limit) {
+  const offset=(page-1)*limit;
+    
   const query = `
     SELECT *
     FROM questions
-    ORDER BY uploaded_at DESC;
+    ORDER BY uploaded_at DESC
+    LIMIT $1
+    OFFSET $2;
   `;
 
-  const { rows } = await pool.query(query);
+  const { rows } = await pool.query(query,[limit,offset]);
 
   return rows;
 }

@@ -135,3 +135,12 @@ long-term, either:
 - Because the app has no authentication, treat it as intentionally public —
   don't put anything in the uploads folder you wouldn't want publicly
   downloadable.
+
+
+## my intregration in future 
+-add note section 
+-book section 
+-syllbus section
+-assignement writing spacial ai api add kora
+-assignement dainamnic cover 
+-

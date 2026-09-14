@@ -209,19 +209,25 @@ async function renderHome(req, res, next) {
 
     const hasFilters = department || semester || keyword;
 
+    let page = parseInt(req.query.page) || 1;
+
+    if (page < 1) {
+      page = 1;
+    }
+
+    const limit = 12;
+
     const questions = hasFilters
       ? await questionModel.searchQuestions({
           department,
           semester,
           keyword,
         })
-      : await questionModel.getAllQuestions();
+      : await questionModel.getAllQuestions(page, limit);
 
     res.render('index', {
       questions,
 
-      // These are suggestions only.
-      // User can type a new department from the search box.
       departments: DEPARTMENT_OPTIONS,
 
       semesters: SEMESTER_OPTIONS,
@@ -232,10 +238,14 @@ async function renderHome(req, res, next) {
         keyword,
       },
 
+      page,
+      limit,
+
       error: null,
 
       success: req.query.success || null,
     });
+
   } catch (err) {
     next(err);
   }
