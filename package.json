@@ -7,13 +7,20 @@
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["question-bank", "university", "express", "postgresql"],
+  "keywords": [
+    "question-bank",
+    "university",
+    "express",
+    "postgresql"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@google-cloud/local-auth": "^3.0.1",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
+    "googleapis": "^181.0.0",
     "multer": "^2.0.1",
     "pg": "^8.12.0"
   },

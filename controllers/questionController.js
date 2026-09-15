@@ -8,10 +8,9 @@ const crypto = require('crypto');
 const multer = require('multer');
 
 const questionModel = require('../models/questionModel');
+const { uploadFile, downloadFile } = require('../services/driveService');
 
-// ---------------------------------------------------------------------------
-// Multer configuration — stores files on disk under public/uploads
-// ---------------------------------------------------------------------------
+// Multer config stores temporary files under public/uploads
 const UPLOAD_DIR = path.join(__dirname, '..', 'public', 'uploads');
 
 const ALLOWED_MIME_TYPES = new Set([
@@ -26,15 +25,9 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, UPLOAD_DIR);
   },
-
   filename: (req, file, cb) => {
-    // Generate a collision-safe unique filename while preserving extension.
     const ext = path.extname(file.originalname).toLowerCase();
-
-    const uniqueName = `${Date.now()}-${crypto
-      .randomBytes(8)
-      .toString('hex')}${ext}`;
-
+    const uniqueName = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}${ext}`;
     cb(null, uniqueName);
   },
 });
@@ -55,22 +48,12 @@ const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 15 * 1024 * 1024, // 15 MB max
+    fileSize: 15 * 1024 * 1024,
   },
 });
 
-// Export the multer middleware for a single field named "file"
 const uploadMiddleware = upload.single('file');
 
-// ---------------------------------------------------------------------------
-// Department options
-//
-// These are only suggestions.
-// Users can also type a completely new department.
-//
-// IMPORTANT:
-// Do NOT use "Other" here.
-// ---------------------------------------------------------------------------
 const DEPARTMENT_OPTIONS = [
   'Computer Science & Engineering',
   'Electrical & Electronic Engineering',
@@ -85,9 +68,6 @@ const DEPARTMENT_OPTIONS = [
   'Law',
 ];
 
-// ---------------------------------------------------------------------------
-// Semester options
-// ---------------------------------------------------------------------------
 const SEMESTER_OPTIONS = [
   '1st Semester',
   '2nd Semester',
@@ -99,9 +79,6 @@ const SEMESTER_OPTIONS = [
   '8th Semester',
 ];
 
-// ---------------------------------------------------------------------------
-// Exam type options
-// ---------------------------------------------------------------------------
 const EXAM_TYPE_OPTIONS = [
   'Midterm',
   'Final',
@@ -111,99 +88,61 @@ const EXAM_TYPE_OPTIONS = [
   'Other',
 ];
 
-// ---------------------------------------------------------------------------
-// Department normalization
-//
-// Examples:
-//
-// "cse"  -> "CSE"
-// "CSE"  -> "CSE"
-// "cSe"  -> "CSE"
-// " cse " -> "CSE"
-//
-// Full department names are kept readable:
-//
-// "computer science and engineering"
-// -> "Computer Science and Engineering"
-//
-// This helps keep uploaded department values consistent.
-// ---------------------------------------------------------------------------
-
 const DEPARTMENT_ALIASES = {
   cse: 'CSE',
   'computer science': 'Computer Science & Engineering',
   'computer science engineering': 'Computer Science & Engineering',
   'computer science & engineering': 'Computer Science & Engineering',
-
   eee: 'EEE',
   'electrical and electronic engineering':
     'Electrical & Electronic Engineering',
   'electrical & electronic engineering':
     'Electrical & Electronic Engineering',
-
   ce: 'CE',
   civil: 'Civil Engineering',
   'civil engineering': 'Civil Engineering',
-
   me: 'ME',
   mechanical: 'Mechanical Engineering',
   'mechanical engineering': 'Mechanical Engineering',
-
   bba: 'BBA',
   'business administration': 'Business Administration',
-
   eco: 'Economics',
   economics: 'Economics',
-
   english: 'English',
-
   math: 'Mathematics',
   maths: 'Mathematics',
   mathematics: 'Mathematics',
-
   physics: 'Physics',
-
   chemistry: 'Chemistry',
-
   law: 'Law',
 };
 
 function normalizeDepartment(value) {
-  if (!value) {
-    return '';
-  }
+  if (!value) return '';
 
-  const cleaned = value
-    .trim()
-    .replace(/\s+/g, ' ');
+  const cleaned = value.trim().replace(/\s+/g, ' ');
 
-  if (!cleaned) {
-    return '';
-  }
+  if (!cleaned) return '';
 
   const key = cleaned.toLowerCase();
 
-  // If alias exists, use the standard value.
   if (DEPARTMENT_ALIASES[key]) {
     return DEPARTMENT_ALIASES[key];
   }
 
-  // If it is a short code such as CSE / EEE / CE,
-  // keep it uppercase.
   if (/^[a-z]{2,6}$/i.test(cleaned)) {
     return cleaned.toUpperCase();
   }
 
-  // Otherwise keep the user's custom department name.
   return cleaned;
 }
 
-// ---------------------------------------------------------------------------
-// GET / — Home / browse page with optional search & filters
-// ---------------------------------------------------------------------------
 async function renderHome(req, res, next) {
   try {
-    const department = normalizeDepartment(req.query.department || '');
+    const department = normalizeDepartment(
+      req.query.department || ''
+    );
+
     const semester = (req.query.semester || '').trim();
     const keyword = (req.query.keyword || '').trim();
 
@@ -227,33 +166,23 @@ async function renderHome(req, res, next) {
 
     res.render('index', {
       questions,
-
       departments: DEPARTMENT_OPTIONS,
-
       semesters: SEMESTER_OPTIONS,
-
       filters: {
         department,
         semester,
         keyword,
       },
-
       page,
       limit,
-
       error: null,
-
       success: req.query.success || null,
     });
-
   } catch (err) {
     next(err);
   }
 }
 
-// ---------------------------------------------------------------------------
-// GET /upload — Render the upload form
-// ---------------------------------------------------------------------------
 function renderUploadForm(req, res) {
   res.render('upload', {
     departments: DEPARTMENT_OPTIONS,
@@ -263,16 +192,9 @@ function renderUploadForm(req, res) {
   });
 }
 
-// ---------------------------------------------------------------------------
-// POST /upload — Handle the multipart form submission
-// ---------------------------------------------------------------------------
 async function handleUpload(req, res, next) {
-  // Run multer first; catch its errors gracefully.
   uploadMiddleware(req, res, async (multerErr) => {
     try {
-      // ---------------------------------------------------------------
-      // Multer error
-      // ---------------------------------------------------------------
       if (multerErr) {
         return res.status(400).render('upload', {
           departments: DEPARTMENT_OPTIONS,
@@ -282,9 +204,6 @@ async function handleUpload(req, res, next) {
         });
       }
 
-      // ---------------------------------------------------------------
-      // Get form data
-      // ---------------------------------------------------------------
       const {
         department,
         semester,
@@ -294,9 +213,6 @@ async function handleUpload(req, res, next) {
         sessionYear,
       } = req.body;
 
-      // ---------------------------------------------------------------
-      // File required
-      // ---------------------------------------------------------------
       if (!req.file) {
         return res.status(400).render('upload', {
           departments: DEPARTMENT_OPTIONS,
@@ -306,9 +222,6 @@ async function handleUpload(req, res, next) {
         });
       }
 
-      // ---------------------------------------------------------------
-      // Basic validation
-      // ---------------------------------------------------------------
       if (
         !department ||
         !semester ||
@@ -317,7 +230,6 @@ async function handleUpload(req, res, next) {
         !examType ||
         !sessionYear
       ) {
-        // Clean up orphaned uploaded file.
         fs.unlink(req.file.path, () => {});
 
         return res.status(400).render('upload', {
@@ -328,10 +240,8 @@ async function handleUpload(req, res, next) {
         });
       }
 
-      // ---------------------------------------------------------------
-      // Normalize department
-      // ---------------------------------------------------------------
-      const normalizedDepartment = normalizeDepartment(department);
+      const normalizedDepartment =
+        normalizeDepartment(department);
 
       if (!normalizedDepartment) {
         fs.unlink(req.file.path, () => {});
@@ -344,56 +254,55 @@ async function handleUpload(req, res, next) {
         });
       }
 
-      // ---------------------------------------------------------------
-      // Normalize other fields
-      // ---------------------------------------------------------------
       const normalizedSemester = semester.trim();
-
-      const normalizedCourseCode = courseCode
-        .trim()
-        .toUpperCase();
-
+      const normalizedCourseCode =
+        courseCode.trim().toUpperCase();
       const normalizedCourseTitle = courseTitle.trim();
-
       const normalizedExamType = examType.trim();
-
       const normalizedSessionYear = sessionYear.trim();
 
-      // ---------------------------------------------------------------
-      // Insert into database
-      // ---------------------------------------------------------------
+      // ==========================================
+      // Upload file to Google Drive
+      // ==========================================
+
+      const driveFile = await uploadFile(
+        req.file.path,
+        req.file.originalname,
+        req.file.mimetype
+      );
+
+      // ==========================================
+      // Save question information to PostgreSQL
+      // ==========================================
+
       await questionModel.insertQuestion({
         department: normalizedDepartment,
-
         semester: normalizedSemester,
-
         courseCode: normalizedCourseCode,
-
         courseTitle: normalizedCourseTitle,
-
         examType: normalizedExamType,
-
         sessionYear: normalizedSessionYear,
 
         fileName: req.file.filename,
-
         originalName: req.file.originalname,
-
         filePath: `/public/uploads/${req.file.filename}`,
-
         fileSize: req.file.size,
+
+        // Google Drive information
+        driveFileId: driveFile.id,
+        driveWebViewLink: driveFile.webViewLink || null,
       });
 
-      // ---------------------------------------------------------------
-      // Redirect after successful upload
-      // ---------------------------------------------------------------
+      // ==========================================
+      // Delete temporary local file
+      // ==========================================
+
+      fs.unlink(req.file.path, () => {});
+
       return res.redirect(
         '/?success=Question paper uploaded successfully!'
       );
     } catch (err) {
-      // ---------------------------------------------------------------
-      // If database insert fails, remove uploaded file.
-      // ---------------------------------------------------------------
       if (req.file && req.file.path) {
         fs.unlink(req.file.path, () => {});
       }
@@ -403,9 +312,6 @@ async function handleUpload(req, res, next) {
   });
 }
 
-// ---------------------------------------------------------------------------
-// GET /download/:id — Serve the file and increment its download count
-// ---------------------------------------------------------------------------
 async function handleDownload(req, res, next) {
   try {
     const { id } = req.params;
@@ -413,22 +319,19 @@ async function handleDownload(req, res, next) {
     const question = await questionModel.getQuestionById(id);
 
     if (!question) {
-      return res.status(404).send('Question paper not found.');
+      return res.status(404).send(
+        'Question paper not found.'
+      );
     }
 
-    const absolutePath = path.join(
-      __dirname,
-      '..',
-      question.file_path.replace('/public', 'public')
-    );
-
-    if (!fs.existsSync(absolutePath)) {
-      return res
-        .status(404)
-        .send('File no longer exists on the server.');
+    // Make sure Google Drive file exists
+    if (!question.drive_file_id) {
+      return res.status(404).send(
+        'File is not available on Google Drive.'
+      );
     }
 
-    // Fire-and-forget increment.
+    // Increase download count
     questionModel
       .incrementDownloadCount(id)
       .catch((err) => {
@@ -438,18 +341,22 @@ async function handleDownload(req, res, next) {
         );
       });
 
-    res.download(
-      absolutePath,
-      question.original_name
+    // Keep original filename when downloading
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${question.original_name}"`
+    );
+
+    // Download file from Google Drive
+    await downloadFile(
+      question.drive_file_id,
+      res
     );
   } catch (err) {
     next(err);
   }
 }
 
-// ---------------------------------------------------------------------------
-// Exports
-// ---------------------------------------------------------------------------
 module.exports = {
   renderHome,
   renderUploadForm,
