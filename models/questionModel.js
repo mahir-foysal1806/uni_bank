@@ -22,6 +22,9 @@ async function insertQuestion(data) {
     originalName,
     filePath,
     fileSize,
+    // Google Drive file details
+    driveFileId,
+    driveWebViewLink,
   } = data;
 
   const query = `
@@ -35,9 +38,11 @@ async function insertQuestion(data) {
       file_name,
       original_name,
       file_path,
-      file_size
+      file_size,
+      drive_file_id,
+      drive_web_view_link
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     RETURNING *;
   `;
 
@@ -52,6 +57,8 @@ async function insertQuestion(data) {
     originalName,
     filePath,
     fileSize,
+    driveFileId || null,
+    driveWebViewLink || null,
   ];
 
   const { rows } = await pool.query(query, values);

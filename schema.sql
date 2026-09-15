@@ -18,8 +18,14 @@ CREATE TABLE IF NOT EXISTS questions (
     file_path       VARCHAR(500)  NOT NULL,       -- relative path, e.g. /public/uploads/xxx.pdf
     file_size       INTEGER,                      -- bytes
     download_count  INTEGER       NOT NULL DEFAULT 0,
-    uploaded_at     TIMESTAMP     NOT NULL DEFAULT NOW()
+    uploaded_at     TIMESTAMP     NOT NULL DEFAULT NOW(),
+    drive_file_id   VARCHAR(255),                 -- Google Drive file ID
+    drive_web_view_link TEXT                      -- Google Drive view URL
 );
+
+-- Migration for existing tables:
+ALTER TABLE questions ADD COLUMN IF NOT EXISTS drive_file_id VARCHAR(255);
+ALTER TABLE questions ADD COLUMN IF NOT EXISTS drive_web_view_link TEXT;
 
 -- ---------------------------------------------------------------------------
 -- Indexes for fast filtering and searching

@@ -133,15 +133,10 @@ async function authorize() {
   });
 }
 
-async function getDrive() {
-  const auth = await authorize();
-
-  return google.drive({
-    version: "v3",
-    auth,
-  });
-}
+// Delegate to the unified getDrive in googleDrive.js (supports Service Account, OAuth env vars, & local files)
+const { getDrive } = require("./googleDrive");
 
 module.exports = {
   getDrive,
+  authorize,
 };

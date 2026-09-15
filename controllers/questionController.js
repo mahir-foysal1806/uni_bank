@@ -319,39 +319,36 @@ async function handleDownload(req, res, next) {
     const question = await questionModel.getQuestionById(id);
 
     if (!question) {
-      return res.status(404).send(
-        'Question paper not found.'
-      );
+      return res.status(404).send('Question paper not found.');
     }
 
-    // Make sure Google Drive file exists
-    if (!question.drive_file_id) {
-      return res.status(404).send(
-        'File is not available on Google Drive.'
+    // Increase download count asynchronously
+    questionModel.incrementDownloadCount(id).catch((err) => {
+      console.error('Failed to increment download count:', err);
+    });
+
+    // 1. Download from Google Drive if drive_file_id exists
+    if (question.drive_file_id) {
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${encodeURIComponent(question.original_name)}"`
       );
+
+      return await downloadFile(question.drive_file_id, res);
     }
 
-    // Increase download count
-    questionModel
-      .incrementDownloadCount(id)
-      .catch((err) => {
-        console.error(
-          'Failed to increment download count:',
-          err
-        );
-      });
-
-    // Keep original filename when downloading
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="${question.original_name}"`
+    // 2. Fallback for older uploads stored locally on disk
+    const absolutePath = path.join(
+      __dirname,
+      '..',
+      question.file_path.replace('/public', 'public')
     );
 
-    // Download file from Google Drive
-    await downloadFile(
-      question.drive_file_id,
-      res
-    );
+    if (fs.existsSync(absolutePath)) {
+      return res.download(absolutePath, question.original_name);
+    }
+
+    return res.status(404).send('File is no longer available.');
   } catch (err) {
     next(err);
   }
