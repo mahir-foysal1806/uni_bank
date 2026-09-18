@@ -1,362 +1,212 @@
-// controllers/questionController.js
-// Handles: rendering home/browse page, the upload form, processing uploads,
-// search/filter logic, and serving file downloads. No authentication — fully open.
+const {
+  getAllQuestions,
+  searchQuestions,
+  getQuestionById,
+  incrementDownloadCount,
+  getDistinctDepartments,
+  getDistinctSemesters,
+  insertQuestion,
+} = require("../models/questionModel");
 
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-const multer = require('multer');
+const {
+  uploadFile,
+  downloadFile,
+} = require("../services/storageService");
 
-const questionModel = require('../models/questionModel');
-const { uploadFile, downloadFile } = require('../services/driveService');
+const fs = require("fs/promises");
+const path = require("path");
 
-// Multer config stores temporary files under public/uploads
-const UPLOAD_DIR = path.join(__dirname, '..', 'public', 'uploads');
-
-const ALLOWED_MIME_TYPES = new Set([
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/gif',
-]);
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, UPLOAD_DIR);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const uniqueName = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}${ext}`;
-    cb(null, uniqueName);
-  },
-});
-
-function fileFilter(req, file, cb) {
-  if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(
-      new Error(
-        'Only PDF and image files (jpg, png, webp, gif) are allowed.'
-      )
-    );
-  }
-}
-
-const upload = multer({
-  storage,
-  fileFilter,
-  limits: {
-    fileSize: 15 * 1024 * 1024,
-  },
-});
-
-const uploadMiddleware = upload.single('file');
-
-const DEPARTMENT_OPTIONS = [
-  'Computer Science & Engineering',
-  'Electrical & Electronic Engineering',
-  'Civil Engineering',
-  'Mechanical Engineering',
-  'Business Administration',
-  'Economics',
-  'English',
-  'Mathematics',
-  'Physics',
-  'Chemistry',
-  'Law',
-];
-
-const SEMESTER_OPTIONS = [
-  '1st Semester',
-  '2nd Semester',
-  '3rd Semester',
-  '4th Semester',
-  '5th Semester',
-  '6th Semester',
-  '7th Semester',
-  '8th Semester',
-];
-
-const EXAM_TYPE_OPTIONS = [
-  'Midterm',
-  'Final',
-  'Quiz',
-  'Class Test',
-  'Assignment',
-  'Other',
-];
-
-const DEPARTMENT_ALIASES = {
-  cse: 'CSE',
-  'computer science': 'Computer Science & Engineering',
-  'computer science engineering': 'Computer Science & Engineering',
-  'computer science & engineering': 'Computer Science & Engineering',
-  eee: 'EEE',
-  'electrical and electronic engineering':
-    'Electrical & Electronic Engineering',
-  'electrical & electronic engineering':
-    'Electrical & Electronic Engineering',
-  ce: 'CE',
-  civil: 'Civil Engineering',
-  'civil engineering': 'Civil Engineering',
-  me: 'ME',
-  mechanical: 'Mechanical Engineering',
-  'mechanical engineering': 'Mechanical Engineering',
-  bba: 'BBA',
-  'business administration': 'Business Administration',
-  eco: 'Economics',
-  economics: 'Economics',
-  english: 'English',
-  math: 'Mathematics',
-  maths: 'Mathematics',
-  mathematics: 'Mathematics',
-  physics: 'Physics',
-  chemistry: 'Chemistry',
-  law: 'Law',
-};
-
-function normalizeDepartment(value) {
-  if (!value) return '';
-
-  const cleaned = value.trim().replace(/\s+/g, ' ');
-
-  if (!cleaned) return '';
-
-  const key = cleaned.toLowerCase();
-
-  if (DEPARTMENT_ALIASES[key]) {
-    return DEPARTMENT_ALIASES[key];
-  }
-
-  if (/^[a-z]{2,6}$/i.test(cleaned)) {
-    return cleaned.toUpperCase();
-  }
-
-  return cleaned;
-}
-
-async function renderHome(req, res, next) {
+async function getQuestions(req, res, next) {
   try {
-    const department = normalizeDepartment(
-      req.query.department || ''
-    );
-
-    const semester = (req.query.semester || '').trim();
-    const keyword = (req.query.keyword || '').trim();
+    const {
+      department = "",
+      semester = "",
+      keyword = "",
+      page = 1,
+    } = req.query;
 
     const hasFilters = department || semester || keyword;
 
-    let page = parseInt(req.query.page) || 1;
-
-    if (page < 1) {
-      page = 1;
-    }
-
-    const limit = 12;
-
     const questions = hasFilters
-      ? await questionModel.searchQuestions({
-          department,
-          semester,
-          keyword,
-        })
-      : await questionModel.getAllQuestions(page, limit);
+      ? await searchQuestions({ department, semester, keyword })
+      : await getAllQuestions(Number(page));
 
-    res.render('index', {
-      questions,
-      departments: DEPARTMENT_OPTIONS,
-      semesters: SEMESTER_OPTIONS,
-      filters: {
-        department,
-        semester,
-        keyword,
+    const [departments, semesters] = await Promise.all([
+      getDistinctDepartments(),
+      getDistinctSemesters(),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        questions,
+        departments,
+        semesters,
+        page: Number(page) || 1,
       },
-      page,
-      limit,
-      error: null,
-      success: req.query.success || null,
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 }
 
-function renderUploadForm(req, res) {
-  res.render('upload', {
-    departments: DEPARTMENT_OPTIONS,
-    semesters: SEMESTER_OPTIONS,
-    examTypes: EXAM_TYPE_OPTIONS,
-    error: null,
-  });
-}
-
-async function handleUpload(req, res, next) {
-  uploadMiddleware(req, res, async (multerErr) => {
-    try {
-      if (multerErr) {
-        return res.status(400).render('upload', {
-          departments: DEPARTMENT_OPTIONS,
-          semesters: SEMESTER_OPTIONS,
-          examTypes: EXAM_TYPE_OPTIONS,
-          error: multerErr.message || 'File upload failed.',
-        });
-      }
-
-      const {
-        department,
-        semester,
-        courseCode,
-        courseTitle,
-        examType,
-        sessionYear,
-      } = req.body;
-
-      if (!req.file) {
-        return res.status(400).render('upload', {
-          departments: DEPARTMENT_OPTIONS,
-          semesters: SEMESTER_OPTIONS,
-          examTypes: EXAM_TYPE_OPTIONS,
-          error: 'Please attach a PDF or image file.',
-        });
-      }
-
-      if (
-        !department ||
-        !semester ||
-        !courseCode ||
-        !courseTitle ||
-        !examType ||
-        !sessionYear
-      ) {
-        fs.unlink(req.file.path, () => {});
-
-        return res.status(400).render('upload', {
-          departments: DEPARTMENT_OPTIONS,
-          semesters: SEMESTER_OPTIONS,
-          examTypes: EXAM_TYPE_OPTIONS,
-          error: 'All fields are required.',
-        });
-      }
-
-      const normalizedDepartment =
-        normalizeDepartment(department);
-
-      if (!normalizedDepartment) {
-        fs.unlink(req.file.path, () => {});
-
-        return res.status(400).render('upload', {
-          departments: DEPARTMENT_OPTIONS,
-          semesters: SEMESTER_OPTIONS,
-          examTypes: EXAM_TYPE_OPTIONS,
-          error: 'Please enter a valid department.',
-        });
-      }
-
-      const normalizedSemester = semester.trim();
-      const normalizedCourseCode =
-        courseCode.trim().toUpperCase();
-      const normalizedCourseTitle = courseTitle.trim();
-      const normalizedExamType = examType.trim();
-      const normalizedSessionYear = sessionYear.trim();
-
-      // ==========================================
-      // Upload file to Google Drive
-      // ==========================================
-
-      const driveFile = await uploadFile(
-        req.file.path,
-        req.file.originalname,
-        req.file.mimetype
-      );
-
-      // ==========================================
-      // Save question information to PostgreSQL
-      // ==========================================
-
-      await questionModel.insertQuestion({
-        department: normalizedDepartment,
-        semester: normalizedSemester,
-        courseCode: normalizedCourseCode,
-        courseTitle: normalizedCourseTitle,
-        examType: normalizedExamType,
-        sessionYear: normalizedSessionYear,
-
-        fileName: req.file.filename,
-        originalName: req.file.originalname,
-        filePath: `/public/uploads/${req.file.filename}`,
-        fileSize: req.file.size,
-
-        // Google Drive information
-        driveFileId: driveFile.id,
-        driveWebViewLink: driveFile.webViewLink || null,
-      });
-
-      // ==========================================
-      // Delete temporary local file
-      // ==========================================
-
-      fs.unlink(req.file.path, () => {});
-
-      return res.redirect(
-        '/?success=Question paper uploaded successfully!'
-      );
-    } catch (err) {
-      if (req.file && req.file.path) {
-        fs.unlink(req.file.path, () => {});
-      }
-
-      next(err);
-    }
-  });
-}
-
-async function handleDownload(req, res, next) {
+async function getQuestion(req, res, next) {
   try {
-    const { id } = req.params;
-
-    const question = await questionModel.getQuestionById(id);
+    const question = await getQuestionById(req.params.id);
 
     if (!question) {
-      return res.status(404).send('Question paper not found.');
+      return res.status(404).json({
+        success: false,
+        message: "Question not found.",
+      });
     }
 
-    // Increase download count asynchronously
-    questionModel.incrementDownloadCount(id).catch((err) => {
-      console.error('Failed to increment download count:', err);
+    res.json({
+      success: true,
+      data: question,
     });
+  } catch (error) {
+    next(error);
+  }
+}
 
-    // 1. Download from Google Drive if drive_file_id exists
-    if (question.drive_file_id) {
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename="${encodeURIComponent(question.original_name)}"`
-      );
+async function createQuestion(req, res, next) {
+  let uploadedToStorage = false;
+  let storageKey = null;
 
-      return await downloadFile(question.drive_file_id, res);
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "A PDF or image file is required.",
+      });
     }
 
-    // 2. Fallback for older uploads stored locally on disk
-    const absolutePath = path.join(
-      __dirname,
-      '..',
-      question.file_path.replace('/public', 'public')
+    const {
+      department,
+      semester,
+      courseCode,
+      courseTitle,
+      examType,
+      sessionYear,
+    } = req.body;
+
+    const requiredFields = {
+      department,
+      semester,
+      courseCode,
+      courseTitle,
+      examType,
+      sessionYear,
+    };
+
+    for (const [field, value] of Object.entries(requiredFields)) {
+      if (!value || !String(value).trim()) {
+        return res.status(400).json({
+          success: false,
+          message: `${field} is required.`,
+        });
+      }
+    }
+
+    storageKey = `questions/${Date.now()}-${req.file.filename}`;
+
+    await uploadFile(
+      req.file.path,
+      storageKey,
+      req.file.mimetype
     );
 
-    if (fs.existsSync(absolutePath)) {
-      return res.download(absolutePath, question.original_name);
+    uploadedToStorage = true;
+
+    const question = await insertQuestion({
+      department: department.trim(),
+      semester: semester.trim(),
+      courseCode: courseCode.trim(),
+      courseTitle: courseTitle.trim(),
+      examType: examType.trim(),
+      sessionYear: sessionYear.trim(),
+      fileName: req.file.filename,
+      originalName: req.file.originalname,
+      fileSize: req.file.size,
+      storageKey,
+    });
+
+    await fs.unlink(req.file.path).catch(() => {});
+
+    res.status(201).json({
+      success: true,
+      message: "Question uploaded successfully.",
+      data: question,
+    });
+  } catch (error) {
+    if (req.file?.path) {
+      await fs.unlink(req.file.path).catch(() => {});
     }
 
-    return res.status(404).send('File is no longer available.');
-  } catch (err) {
-    next(err);
+    if (uploadedToStorage && storageKey) {
+      console.error(
+        "Database insert failed after storage upload:",
+        storageKey
+      );
+    }
+
+    next(error);
   }
+}
+
+async function downloadQuestion(req, res, next) {
+  try {
+    const question = await getQuestionById(req.params.id);
+
+    if (!question) {
+      return res.status(404).json({
+        success: false,
+        message: "Question not found.",
+      });
+    }
+
+    if (!question.storage_key) {
+      return res.status(404).json({
+        success: false,
+        message: "File is not available.",
+      });
+    }
+
+    await incrementDownloadCount(question.id);
+
+    await downloadFile(
+      question.storage_key,
+      res,
+      getContentType(question.original_name)
+    );
+  } catch (error) {
+    console.error("Download error:", error);
+
+    if (!res.headersSent) {
+      next(error);
+    }
+  }
+}
+
+function getContentType(fileName = "") {
+  const extension = path.extname(fileName).toLowerCase();
+
+  const types = {
+    ".pdf": "application/pdf",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+    ".gif": "image/gif",
+  };
+
+  return types[extension] || "application/octet-stream";
 }
 
 module.exports = {
-  renderHome,
-  renderUploadForm,
-  handleUpload,
-  handleDownload,
+  getQuestions,
+  getQuestion,
+  createQuestion,
+  downloadQuestion,
 };

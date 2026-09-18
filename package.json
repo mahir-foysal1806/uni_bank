@@ -1,33 +1,25 @@
 {
   "name": "uniqbank",
-  "version": "1.0.0",
-  "description": "UniQBank - University Question Bank. Upload and download past question papers instantly, no login required.",
+  "version": "2.0.0",
+  "description": "UniQBank - University Question Bank",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": [
-    "question-bank",
-    "university",
-    "express",
-    "postgresql"
-  ],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
-    "@google-cloud/local-auth": "^3.0.1",
+    "@aws-sdk/client-s3": "^3.0.0",
+    "cors": "^2.8.6",
     "dotenv": "^16.4.5",
-    "ejs": "^3.1.10",
     "express": "^4.19.2",
-    "googleapis": "^181.0.0",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "morgan": "^1.12.1",
     "multer": "^2.0.1",
+    "pdfkit": "^0.20.2",
     "pg": "^8.12.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "nodemon": "^3.1.14"
   }
 }

@@ -1,19 +1,26 @@
-// routes/questionRoutes.js
-// Defines all application routes. No auth middleware anywhere — fully open access.
+const express = require("express");
 
-const express = require('express');
+const {
+  getQuestions,
+  getQuestion,
+  createQuestion,
+  downloadQuestion,
+} = require("../controllers/questionController");
+
+const upload = require("../middleware/upload");
+
 const router = express.Router();
 
-const questionController = require('../controllers/questionController');
+// GET /api/questions
+router.get("/", getQuestions);
 
-// Home / browse page — supports ?department=&semester=&keyword= query filters
-router.get('/', questionController.renderHome);
+// POST /api/questions
+router.post("/", upload.single("file"), createQuestion);
 
-// Upload form (GET) and submission (POST)
-router.get('/upload', questionController.renderUploadForm);
-router.post('/upload', questionController.handleUpload);
+// GET /api/questions/:id
+router.get("/:id", getQuestion);
 
-// Instant download by question ID
-router.get('/download/:id', questionController.handleDownload);
+// GET /api/questions/:id/download
+router.get("/:id/download", downloadQuestion);
 
 module.exports = router;
