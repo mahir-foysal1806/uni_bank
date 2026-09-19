@@ -1,10 +1,13 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function Navbar() {
   return (
     <header className="navbar">
       <div className="container nav-inner">
-
         <Link to="/" className="logo">
           UniQBank
         </Link>
@@ -20,12 +23,10 @@ function Navbar() {
         <Link to="/upload" className="upload-btn">
           + Upload
         </Link>
-
       </div>
     </header>
   );
 }
-
 
 function Home() {
   return (
@@ -33,14 +34,9 @@ function Home() {
       <Navbar />
 
       <main>
-
-        {/* Hero */}
         <section className="hero">
-
           <div className="container hero-content">
-
             <div className="hero-text">
-
               <span className="hero-badge">
                 UNIVERSITY QUESTION BANK
               </span>
@@ -56,7 +52,6 @@ function Home() {
               </p>
 
               <div className="hero-actions">
-
                 <Link to="/questions" className="primary-btn">
                   Browse Questions
                 </Link>
@@ -64,239 +59,342 @@ function Home() {
                 <Link to="/upload" className="secondary-btn">
                   Upload Paper
                 </Link>
-
               </div>
-
             </div>
-
           </div>
-
         </section>
 
-
-        {/* Search */}
-        <section className="search-section">
-
-          <div className="container">
-
-            <div className="search-box">
-
-              <input
-                type="text"
-                placeholder="Search course code, course title..."
-              />
-
-              <select defaultValue="">
-                <option value="">
-                  All Departments
-                </option>
-                <option>CSE</option>
-                <option>EEE</option>
-                <option>ICE</option>
-                <option>ME</option>
-              </select>
-
-              <select defaultValue="">
-                <option value="">
-                  All Semesters
-                </option>
-                <option>1st Semester</option>
-                <option>2nd Semester</option>
-                <option>3rd Semester</option>
-                <option>4th Semester</option>
-              </select>
-
-              <button>
-                Search
-              </button>
-
-            </div>
-
-          </div>
-
-        </section>
-
-
-        {/* Categories */}
         <section className="categories">
-
           <div className="container">
-
             <div className="section-heading">
-
               <div>
                 <span>EXPLORE</span>
-
-                <h2>
-                  Everything you need
-                </h2>
+                <h2>Everything you need</h2>
               </div>
-
             </div>
 
-
             <div className="category-grid">
-
               <Link to="/questions" className="category-card">
                 <div className="category-icon">📄</div>
                 <h3>Question Papers</h3>
-                <p>
-                  Find previous university exam papers.
-                </p>
+                <p>Find previous university exam papers.</p>
               </Link>
-
 
               <Link to="/notes" className="category-card">
                 <div className="category-icon">📝</div>
                 <h3>Lecture Notes</h3>
-                <p>
-                  Access useful lecture notes and study materials.
-                </p>
+                <p>Access useful lecture notes and study materials.</p>
               </Link>
-
 
               <Link to="/books" className="category-card">
                 <div className="category-icon">📚</div>
                 <h3>Books</h3>
-                <p>
-                  Discover textbooks and academic resources.
-                </p>
+                <p>Discover textbooks and academic resources.</p>
               </Link>
-
 
               <Link to="/syllabus" className="category-card">
                 <div className="category-icon">📑</div>
                 <h3>Syllabus</h3>
-                <p>
-                  Browse university course syllabuses.
-                </p>
+                <p>Browse university course syllabuses.</p>
               </Link>
-
             </div>
-
           </div>
-
         </section>
-
-
-        {/* Features */}
-        <section className="features">
-
-          <div className="container">
-
-            <div className="feature-grid">
-
-              <div className="feature">
-
-                <div className="feature-icon">
-                  🔎
-                </div>
-
-                <div>
-                  <h3>Easy Search</h3>
-
-                  <p>
-                    Quickly find papers using course code,
-                    department or semester.
-                  </p>
-                </div>
-
-              </div>
-
-
-              <div className="feature">
-
-                <div className="feature-icon">
-                  ⚡
-                </div>
-
-                <div>
-                  <h3>Fast Access</h3>
-
-                  <p>
-                    Download your required study material
-                    without unnecessary steps.
-                  </p>
-                </div>
-
-              </div>
-
-
-              <div className="feature">
-
-                <div className="feature-icon">
-                  🌐
-                </div>
-
-                <div>
-                  <h3>Open Platform</h3>
-
-                  <p>
-                    Access academic resources without
-                    creating an account.
-                  </p>
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </section>
-
       </main>
 
-
-      {/* Footer */}
       <footer>
-
         <div className="container footer-inner">
-
           <div>
-
             <Link to="/" className="logo">
               UniQBank
             </Link>
 
-            <p>
-              University resources, all in one place.
-            </p>
-
+            <p>University resources, all in one place.</p>
           </div>
-
-          <div className="footer-links">
-
-            <Link to="/questions">
-              Questions
-            </Link>
-
-            <Link to="/notes">
-              Notes
-            </Link>
-
-            <Link to="/books">
-              Books
-            </Link>
-
-            <Link to="/syllabus">
-              Syllabus
-            </Link>
-
-          </div>
-
         </div>
 
         <div className="container copyright">
           © {new Date().getFullYear()} UniQBank. All rights reserved.
         </div>
-
       </footer>
-
     </>
   );
 }
 
+function UploadQuestion() {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    department: "",
+    semester: "",
+    courseCode: "",
+    courseTitle: "",
+    examType: "",
+    sessionYear: "",
+  });
+
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  function handleChange(event) {
+    const { name, value } = event.target;
+
+    setForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  }
+
+  function handleFileChange(event) {
+    const selectedFile = event.target.files?.[0];
+
+    if (!selectedFile) {
+      setFile(null);
+      return;
+    }
+
+    const allowedTypes = [
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+
+    if (!allowedTypes.includes(selectedFile.type)) {
+      setFile(null);
+      setError("Only PDF, JPG, PNG and WEBP files are allowed.");
+      return;
+    }
+
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      setFile(null);
+      setError("Maximum file size is 10 MB.");
+      return;
+    }
+
+    setError("");
+    setFile(selectedFile);
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    setMessage("");
+    setError("");
+
+    if (!file) {
+      setError("Please select a PDF or image file.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.append("department", form.department);
+      formData.append("semester", form.semester);
+      formData.append("courseCode", form.courseCode);
+      formData.append("courseTitle", form.courseTitle);
+      formData.append("examType", form.examType);
+      formData.append("sessionYear", form.sessionYear);
+      formData.append("file", file);
+
+      const response = await fetch(`${API_URL}/api/questions`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || "Upload failed. Please try again."
+        );
+      }
+
+      setMessage("Question paper uploaded successfully!");
+
+      setForm({
+        department: "",
+        semester: "",
+        courseCode: "",
+        courseTitle: "",
+        examType: "",
+        sessionYear: "",
+      });
+
+      setFile(null);
+
+      const fileInput = document.getElementById("question-file");
+
+      if (fileInput) {
+        fileInput.value = "";
+      }
+    } catch (uploadError) {
+      console.error("Upload error:", uploadError);
+
+      setError(
+        uploadError.message ||
+          "Could not connect to the server."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <>
+      <Navbar />
+
+      <main className="placeholder-page">
+        <div style={{ width: "100%", maxWidth: "760px" }}>
+          <h1>Upload Question Paper</h1>
+
+          <p>
+            Upload a university question paper for other students.
+          </p>
+
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              marginTop: "32px",
+              display: "grid",
+              gap: "18px",
+              textAlign: "left",
+            }}
+          >
+            <label>
+              Department
+              <input
+                type="text"
+                name="department"
+                value={form.department}
+                onChange={handleChange}
+                placeholder="e.g. CSE"
+                required
+              />
+            </label>
+
+            <label>
+              Semester
+              <input
+                type="text"
+                name="semester"
+                value={form.semester}
+                onChange={handleChange}
+                placeholder="e.g. 3rd Semester"
+                required
+              />
+            </label>
+
+            <label>
+              Course Code
+              <input
+                type="text"
+                name="courseCode"
+                value={form.courseCode}
+                onChange={handleChange}
+                placeholder="e.g. CSE 2201"
+                required
+              />
+            </label>
+
+            <label>
+              Course Title
+              <input
+                type="text"
+                name="courseTitle"
+                value={form.courseTitle}
+                onChange={handleChange}
+                placeholder="e.g. Data Structures"
+                required
+              />
+            </label>
+
+            <label>
+              Exam Type
+              <select
+                name="examType"
+                value={form.examType}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select exam type</option>
+                <option value="Midterm">Midterm</option>
+                <option value="Final">Final</option>
+                <option value="Quiz">Quiz</option>
+                <option value="Assignment">Assignment</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+
+            <label>
+              Session / Year
+              <input
+                type="text"
+                name="sessionYear"
+                value={form.sessionYear}
+                onChange={handleChange}
+                placeholder="e.g. 2025-2026"
+                required
+              />
+            </label>
+
+            <label>
+              Question Paper
+              <input
+                id="question-file"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.webp"
+                onChange={handleFileChange}
+                required
+              />
+            </label>
+
+            {file && (
+              <p>
+                Selected file: <strong>{file.name}</strong>
+              </p>
+            )}
+
+            {error && (
+              <p style={{ color: "red" }}>
+                {error}
+              </p>
+            )}
+
+            {message && (
+              <p style={{ color: "green" }}>
+                {message}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="primary-btn"
+              disabled={loading}
+            >
+              {loading ? "Uploading..." : "Upload Question Paper"}
+            </button>
+          </form>
+
+          <div style={{ marginTop: "24px" }}>
+            <button
+              type="button"
+              className="secondary-btn"
+              onClick={() => navigate("/")}
+            >
+              ← Back Home
+            </button>
+          </div>
+        </div>
+      </main>
+    </>
+  );
+}
 
 function Placeholder({ title }) {
   return (
@@ -304,29 +402,22 @@ function Placeholder({ title }) {
       <Navbar />
 
       <main className="placeholder-page">
-
         <h1>{title}</h1>
 
-        <p>
-          This section is coming next.
-        </p>
+        <p>This section is coming next.</p>
 
         <Link to="/" className="primary-btn">
           ← Back Home
         </Link>
-
       </main>
     </>
   );
 }
 
-
 function App() {
   return (
     <BrowserRouter>
-
       <Routes>
-
         <Route path="/" element={<Home />} />
 
         <Route
@@ -351,11 +442,9 @@ function App() {
 
         <Route
           path="/upload"
-          element={<Placeholder title="Upload Question" />}
+          element={<UploadQuestion />}
         />
-
       </Routes>
-
     </BrowserRouter>
   );
 }
