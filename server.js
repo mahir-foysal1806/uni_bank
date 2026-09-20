@@ -7,6 +7,7 @@ const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 
 const questionRoutes = require("./routes/questionRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 const { testConnection } = require("./services/storageService");
 
 const app = express();
@@ -97,6 +98,7 @@ app.use(express.urlencoded({ extended: true }));
 */
 
 app.use("/api/questions", questionRoutes);
+app.use("/api/ai", aiRoutes);
 
 /*
 |--------------------------------------------------------------------------

@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 
 import "./index.css";
+import AIChat from "./components/AIChat";
 
 const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -33,7 +34,8 @@ async function apiRequest(url, options = {}) {
 
   if (!response.ok) {
     throw new Error(
-      data?.message || `Request failed with status ${response.status}`
+      data?.message ||
+        `Request failed with status ${response.status}`
     );
   }
 
@@ -49,20 +51,44 @@ function Navbar() {
   const location = useLocation();
 
   const links = [
-    { label: "Home", path: "/" },
-    { label: "Questions", path: "/questions" },
-    { label: "Notes", path: "/notes" },
-    { label: "Books", path: "/books" },
-    { label: "Syllabus", path: "/syllabus" },
+    {
+      label: "Home",
+      path: "/",
+    },
+    {
+      label: "Questions",
+      path: "/questions",
+    },
+    {
+      label: "Notes",
+      path: "/notes",
+    },
+    {
+      label: "Books",
+      path: "/books",
+    },
+    {
+      label: "Syllabus",
+      path: "/syllabus",
+    },
+    {
+      label: "AI Assistant",
+      path: "/ai",
+    },
   ];
 
   return (
     <header className="navbar">
       <div className="container nav-inner">
 
+        {/* LOGO */}
+
         <Link to="/" className="logo">
           UniQBank
         </Link>
+
+
+        {/* NAVIGATION */}
 
         <nav className="nav-links">
           {links.map((link) => (
@@ -72,7 +98,8 @@ function Navbar() {
               className={({ isActive }) =>
                 `nav-link ${
                   isActive ||
-                  (link.path === "/" && location.pathname === "/")
+                  (link.path === "/" &&
+                    location.pathname === "/")
                     ? "active"
                     : ""
                 }`
@@ -83,7 +110,13 @@ function Navbar() {
           ))}
         </nav>
 
-        <Link to="/upload" className="upload-btn">
+
+        {/* UPLOAD */}
+
+        <Link
+          to="/upload"
+          className="upload-btn"
+        >
           + Upload
         </Link>
 
@@ -103,28 +136,58 @@ function Footer() {
       <div className="container footer-inner">
 
         <div>
-          <Link to="/" className="logo">
+          <Link
+            to="/"
+            className="logo"
+          >
             UniQBank
           </Link>
 
           <p>
-            A simple university resource platform for students.
+            A simple university resource platform
+            for students.
           </p>
         </div>
 
+
         <div className="footer-links">
-          <Link to="/">Home</Link>
-          <Link to="/questions">Questions</Link>
-          <Link to="/notes">Notes</Link>
-          <Link to="/books">Books</Link>
-          <Link to="/syllabus">Syllabus</Link>
-          <Link to="/upload">Upload</Link>
+
+          <Link to="/">
+            Home
+          </Link>
+
+          <Link to="/questions">
+            Questions
+          </Link>
+
+          <Link to="/notes">
+            Notes
+          </Link>
+
+          <Link to="/books">
+            Books
+          </Link>
+
+          <Link to="/syllabus">
+            Syllabus
+          </Link>
+
+          <Link to="/ai">
+            AI Assistant
+          </Link>
+
+          <Link to="/upload">
+            Upload
+          </Link>
+
         </div>
 
       </div>
 
+
       <div className="container copyright">
-        © {new Date().getFullYear()} UniQBank. All rights reserved.
+        © {new Date().getFullYear()} UniQBank.
+        All rights reserved.
       </div>
     </footer>
   );
@@ -159,6 +222,7 @@ function Home() {
 
   const [keyword, setKeyword] = useState("");
 
+
   const searchQuestions = (event) => {
     event.preventDefault();
 
@@ -166,16 +230,25 @@ function Home() {
 
     if (value) {
       navigate(
-        `/questions?keyword=${encodeURIComponent(value)}`
+        `/questions?keyword=${encodeURIComponent(
+          value
+        )}`
       );
     } else {
       navigate("/questions");
     }
   };
 
+
   return (
     <>
+
+      {/* ======================================================
+          HERO
+      ====================================================== */}
+
       <section className="hero">
+
         <div className="container hero-content">
 
           <div className="hero-text">
@@ -184,16 +257,22 @@ function Home() {
               UNIVERSITY RESOURCE PLATFORM
             </span>
 
+
             <h1>
               Everything you need
               <br />
               <span>for university.</span>
             </h1>
 
+
             <p>
-              Find past question papers, lecture notes, books
-              and syllabus materials in one simple place.
+              Find past question papers, lecture notes,
+              books and syllabus materials in one simple
+              place.
             </p>
+
+
+            {/* HERO ACTIONS */}
 
             <div className="hero-actions">
 
@@ -204,6 +283,7 @@ function Home() {
                 Browse Questions
               </Link>
 
+
               <Link
                 to="/upload"
                 className="secondary-btn"
@@ -211,17 +291,29 @@ function Home() {
                 Upload Material
               </Link>
 
+
+              <Link
+                to="/ai"
+                className="ai-btn"
+              >
+                ✨ Ask UniQBank AI
+              </Link>
+
             </div>
 
           </div>
 
         </div>
+
       </section>
 
 
-      {/* SEARCH */}
+      {/* ======================================================
+          SEARCH
+      ====================================================== */}
 
       <section className="search-section">
+
         <div className="container">
 
           <form
@@ -233,16 +325,21 @@ function Home() {
               type="text"
               placeholder="Search course code, course title..."
               value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
+              onChange={(event) =>
+                setKeyword(event.target.value)
+              }
             />
+
 
             <div className="search-info">
               Search questions
             </div>
 
+
             <div className="search-info">
               Fast & simple
             </div>
+
 
             <button type="submit">
               Search
@@ -251,10 +348,13 @@ function Home() {
           </form>
 
         </div>
+
       </section>
 
 
-      {/* CATEGORIES */}
+      {/* ======================================================
+          CATEGORIES
+      ====================================================== */}
 
       <section className="categories">
 
@@ -275,10 +375,13 @@ function Home() {
 
           <div className="category-grid">
 
+            {/* QUESTIONS */}
+
             <Link
               to="/questions"
               className="category-card"
             >
+
               <div className="category-icon">
                 📄
               </div>
@@ -291,13 +394,17 @@ function Home() {
                 Browse previous university exam
                 question papers.
               </p>
+
             </Link>
 
+
+            {/* NOTES */}
 
             <Link
               to="/notes"
               className="category-card"
             >
+
               <div className="category-icon">
                 📝
               </div>
@@ -310,13 +417,17 @@ function Home() {
                 Keep your important lecture notes
                 organized.
               </p>
+
             </Link>
 
+
+            {/* BOOKS */}
 
             <Link
               to="/books"
               className="category-card"
             >
+
               <div className="category-icon">
                 📚
               </div>
@@ -329,13 +440,17 @@ function Home() {
                 Find useful academic books and
                 study materials.
               </p>
+
             </Link>
 
+
+            {/* SYLLABUS */}
 
             <Link
               to="/syllabus"
               className="category-card"
             >
+
               <div className="category-icon">
                 📖
               </div>
@@ -345,9 +460,33 @@ function Home() {
               </h3>
 
               <p>
-                Access course and semester syllabus
-                information.
+                Access course and semester
+                syllabus information.
               </p>
+
+            </Link>
+
+
+            {/* AI */}
+
+            <Link
+              to="/ai"
+              className="category-card ai-category-card"
+            >
+
+              <div className="category-icon">
+                ✨
+              </div>
+
+              <h3>
+                UniQBank AI
+              </h3>
+
+              <p>
+                Ask questions, get study help and
+                use the UniQBank AI assistant.
+              </p>
+
             </Link>
 
           </div>
@@ -357,13 +496,17 @@ function Home() {
       </section>
 
 
-      {/* FEATURES */}
+      {/* ======================================================
+          FEATURES
+      ====================================================== */}
 
       <section className="features">
 
         <div className="container">
 
           <div className="feature-grid">
+
+            {/* FEATURE 1 */}
 
             <div className="feature">
 
@@ -372,6 +515,7 @@ function Home() {
               </div>
 
               <div>
+
                 <h3>
                   Easy Search
                 </h3>
@@ -380,10 +524,13 @@ function Home() {
                   Quickly find questions using
                   course, department or semester.
                 </p>
+
               </div>
 
             </div>
 
+
+            {/* FEATURE 2 */}
 
             <div className="feature">
 
@@ -392,18 +539,47 @@ function Home() {
               </div>
 
               <div>
+
                 <h3>
                   Fast Access
                 </h3>
 
                 <p>
                   Open and download academic
-                  materials without unnecessary steps.
+                  materials without unnecessary
+                  steps.
                 </p>
+
               </div>
 
             </div>
 
+
+            {/* FEATURE 3 */}
+
+            <div className="feature">
+
+              <div className="feature-icon">
+                🤖
+              </div>
+
+              <div>
+
+                <h3>
+                  AI Study Assistant
+                </h3>
+
+                <p>
+                  Get help with academic questions
+                  using UniQBank AI.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            {/* FEATURE 4 */}
 
             <div className="feature">
 
@@ -412,6 +588,7 @@ function Home() {
               </div>
 
               <div>
+
                 <h3>
                   Open Platform
                 </h3>
@@ -420,6 +597,7 @@ function Home() {
                   No account is required to browse
                   available resources.
                 </p>
+
               </div>
 
             </div>
@@ -429,6 +607,7 @@ function Home() {
         </div>
 
       </section>
+
     </>
   );
 }
@@ -439,11 +618,15 @@ function Home() {
 // ============================================================
 
 function QuestionCard({ question }) {
+
   const downloadUrl =
     `${API_URL}/api/questions/${question.id}/download`;
 
+
   return (
     <article className="question-card">
+
+      {/* TOP */}
 
       <div className="question-card-top">
 
@@ -451,20 +634,25 @@ function QuestionCard({ question }) {
           📄
         </div>
 
+
         <div className="question-card-title">
 
           <h3>
-            {question.course_title || "Untitled Course"}
+            {question.course_title ||
+              "Untitled Course"}
           </h3>
 
           <span>
-            {question.course_code || "No course code"}
+            {question.course_code ||
+              "No course code"}
           </span>
 
         </div>
 
       </div>
 
+
+      {/* META */}
 
       <div className="question-meta">
 
@@ -514,11 +702,15 @@ function QuestionCard({ question }) {
       </div>
 
 
+      {/* BOTTOM */}
+
       <div className="question-card-bottom">
 
         <span className="file-name">
-          {question.original_name || "Question paper"}
+          {question.original_name ||
+            "Question paper"}
         </span>
+
 
         <a
           href={downloadUrl}
@@ -541,105 +733,173 @@ function QuestionCard({ question }) {
 // ============================================================
 
 function Questions() {
-  const [searchParams, setSearchParams] =
-    useSearchParams();
 
-  const [questions, setQuestions] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [semesters, setSemesters] = useState([]);
+  const [
+    searchParams,
+    setSearchParams,
+  ] = useSearchParams();
 
-  const [keyword, setKeyword] = useState(
-    searchParams.get("keyword") || ""
-  );
 
-  const [department, setDepartment] = useState(
-    searchParams.get("department") || ""
-  );
+  const [questions, setQuestions] =
+    useState([]);
 
-  const [semester, setSemester] = useState(
-    searchParams.get("semester") || ""
-  );
+  const [departments, setDepartments] =
+    useState([]);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [semesters, setSemesters] =
+    useState([]);
+
+
+  const [keyword, setKeyword] =
+    useState(
+      searchParams.get("keyword") || ""
+    );
+
+
+  const [department, setDepartment] =
+    useState(
+      searchParams.get("department") || ""
+    );
+
+
+  const [semester, setSemester] =
+    useState(
+      searchParams.get("semester") || ""
+    );
+
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
 
   const loadQuestions = async () => {
+
     try {
+
       setLoading(true);
       setError("");
 
-      const params = new URLSearchParams();
+
+      const params =
+        new URLSearchParams();
+
 
       if (keyword.trim()) {
-        params.set("keyword", keyword.trim());
+        params.set(
+          "keyword",
+          keyword.trim()
+        );
       }
+
 
       if (department) {
-        params.set("department", department);
+        params.set(
+          "department",
+          department
+        );
       }
+
 
       if (semester) {
-        params.set("semester", semester);
+        params.set(
+          "semester",
+          semester
+        );
       }
 
-      const query = params.toString();
+
+      const query =
+        params.toString();
+
 
       const url =
         `${API_URL}/api/questions` +
         (query ? `?${query}` : "");
 
-      const result = await apiRequest(url);
 
-      setQuestions(result?.data?.questions || []);
-      setDepartments(result?.data?.departments || []);
-      setSemesters(result?.data?.semesters || []);
+      const result =
+        await apiRequest(url);
+
+
+      setQuestions(
+        result?.data?.questions || []
+      );
+
+
+      setDepartments(
+        result?.data?.departments || []
+      );
+
+
+      setSemesters(
+        result?.data?.semesters || []
+      );
 
     } catch (err) {
+
       console.error(err);
 
       setError(
         err.message ||
-        "Unable to load question papers."
+          "Unable to load question papers."
       );
 
     } finally {
+
       setLoading(false);
+
     }
   };
 
 
   useEffect(() => {
+
     loadQuestions();
+
   }, [
     searchParams.toString(),
   ]);
 
 
   const handleSearch = (event) => {
+
     event.preventDefault();
+
 
     const params = {};
 
+
     if (keyword.trim()) {
-      params.keyword = keyword.trim();
+      params.keyword =
+        keyword.trim();
     }
+
 
     if (department) {
-      params.department = department;
+      params.department =
+        department;
     }
 
+
     if (semester) {
-      params.semester = semester;
+      params.semester =
+        semester;
     }
+
 
     setSearchParams(params);
   };
 
 
   const clearFilters = () => {
+
     setKeyword("");
     setDepartment("");
     setSemester("");
+
     setSearchParams({});
   };
 
@@ -649,9 +909,12 @@ function Questions() {
 
       <div className="container">
 
+        {/* HEADER */}
+
         <div className="page-header">
 
           <div>
+
             <span className="page-eyebrow">
               QUESTION BANK
             </span>
@@ -661,10 +924,12 @@ function Questions() {
             </h1>
 
             <p>
-              Search and download previous university
-              question papers.
+              Search and download previous
+              university question papers.
             </p>
+
           </div>
+
 
           <Link
             to="/upload"
@@ -687,18 +952,19 @@ function Questions() {
             type="text"
             placeholder="Course code, title, department..."
             value={keyword}
-            onChange={(e) =>
-              setKeyword(e.target.value)
+            onChange={(event) =>
+              setKeyword(event.target.value)
             }
           />
 
 
           <select
             value={department}
-            onChange={(e) =>
-              setDepartment(e.target.value)
+            onChange={(event) =>
+              setDepartment(event.target.value)
             }
           >
+
             <option value="">
               All Departments
             </option>
@@ -711,15 +977,17 @@ function Questions() {
                 {item}
               </option>
             ))}
+
           </select>
 
 
           <select
             value={semester}
-            onChange={(e) =>
-              setSemester(e.target.value)
+            onChange={(event) =>
+              setSemester(event.target.value)
             }
           >
+
             <option value="">
               All Semesters
             </option>
@@ -732,6 +1000,7 @@ function Questions() {
                 {item}
               </option>
             ))}
+
           </select>
 
 
@@ -758,6 +1027,7 @@ function Questions() {
 
         {!loading && !error && (
           <div className="result-bar">
+
             <span>
               {questions.length}{" "}
               {questions.length === 1
@@ -765,6 +1035,7 @@ function Questions() {
                 : "questions"}{" "}
               found
             </span>
+
           </div>
         )}
 
@@ -773,11 +1044,13 @@ function Questions() {
 
         {loading && (
           <div className="state-box">
+
             <div className="loader"></div>
 
             <p>
               Loading question papers...
             </p>
+
           </div>
         )}
 
@@ -823,7 +1096,8 @@ function Questions() {
               </h2>
 
               <p>
-                Try changing your search or filters.
+                Try changing your search
+                or filters.
               </p>
 
               <button
@@ -846,10 +1120,12 @@ function Questions() {
             <div className="questions-grid">
 
               {questions.map((question) => (
+
                 <QuestionCard
                   key={question.id}
                   question={question}
                 />
+
               ))}
 
             </div>
@@ -867,39 +1143,56 @@ function Questions() {
 // ============================================================
 
 function UploadQuestion() {
-  const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    department: "",
-    semester: "",
-    courseCode: "",
-    courseTitle: "",
-    examType: "",
-    sessionYear: "",
-    file: null,
-  });
+  const navigate =
+    useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+
+  const [form, setForm] =
+    useState({
+      department: "",
+      semester: "",
+      courseCode: "",
+      courseTitle: "",
+      examType: "",
+      sessionYear: "",
+      file: null,
+    });
+
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [message, setMessage] =
+    useState("");
+
+  const [error, setError] =
+    useState("");
 
 
   const handleChange = (event) => {
+
     const {
       name,
       value,
       files,
     } = event.target;
 
+
     setForm((previous) => ({
       ...previous,
-      [name]: files ? files[0] : value,
+
+      [name]: files
+        ? files[0]
+        : value,
     }));
   };
 
 
   const handleSubmit = async (event) => {
+
     event.preventDefault();
+
 
     setLoading(true);
     setMessage("");
@@ -907,13 +1200,20 @@ function UploadQuestion() {
 
 
     if (!form.file) {
-      setError("Please select a PDF or image file.");
+
+      setError(
+        "Please select a PDF or image file."
+      );
+
       setLoading(false);
+
       return;
     }
 
 
-    const formData = new FormData();
+    const formData =
+      new FormData();
+
 
     formData.append(
       "department",
@@ -952,6 +1252,7 @@ function UploadQuestion() {
 
 
     try {
+
       await apiRequest(
         `${API_URL}/api/questions`,
         {
@@ -978,23 +1279,28 @@ function UploadQuestion() {
 
 
       const fileInput =
-        document.getElementById("question-file");
+        document.getElementById(
+          "question-file"
+        );
+
 
       if (fileInput) {
         fileInput.value = "";
       }
 
-
     } catch (err) {
+
       console.error(err);
 
       setError(
         err.message ||
-        "Upload failed. Please try again."
+          "Upload failed. Please try again."
       );
 
     } finally {
+
       setLoading(false);
+
     }
   };
 
@@ -1002,11 +1308,12 @@ function UploadQuestion() {
   return (
     <section className="page-section">
 
-      <div className="container upload-container">
+      <div className="container">
 
         <div className="page-header">
 
           <div>
+
             <span className="page-eyebrow">
               CONTRIBUTE
             </span>
@@ -1016,9 +1323,10 @@ function UploadQuestion() {
             </h1>
 
             <p>
-              Help other students by sharing a
-              university question paper.
+              Help other students by uploading
+              a university question paper.
             </p>
+
           </div>
 
         </div>
@@ -1029,169 +1337,156 @@ function UploadQuestion() {
           onSubmit={handleSubmit}
         >
 
-          <div className="form-grid">
+          <label>
+            Department
+
+            <input
+              type="text"
+              name="department"
+              value={form.department}
+              onChange={handleChange}
+              placeholder="e.g. CSE"
+              required
+            />
+
+          </label>
 
 
-            <div className="form-group">
+          <label>
+            Semester
 
-              <label>
-                Department
-              </label>
+            <input
+              type="text"
+              name="semester"
+              value={form.semester}
+              onChange={handleChange}
+              placeholder="e.g. 3rd Semester"
+              required
+            />
 
-              <input
-                name="department"
-                value={form.department}
-                onChange={handleChange}
-                placeholder="e.g. CSE"
-                required
-              />
-
-            </div>
+          </label>
 
 
-            <div className="form-group">
+          <label>
+            Course Code
 
-              <label>
-                Semester
-              </label>
+            <input
+              type="text"
+              name="courseCode"
+              value={form.courseCode}
+              onChange={handleChange}
+              placeholder="e.g. CSE 2201"
+              required
+            />
 
-              <input
-                name="semester"
-                value={form.semester}
-                onChange={handleChange}
-                placeholder="e.g. 3rd Semester"
-                required
-              />
-
-            </div>
+          </label>
 
 
-            <div className="form-group">
+          <label>
+            Course Title
 
-              <label>
-                Course Code
-              </label>
+            <input
+              type="text"
+              name="courseTitle"
+              value={form.courseTitle}
+              onChange={handleChange}
+              placeholder="e.g. Data Structures"
+              required
+            />
 
-              <input
-                name="courseCode"
-                value={form.courseCode}
-                onChange={handleChange}
-                placeholder="e.g. CSE 2201"
-                required
-              />
-
-            </div>
+          </label>
 
 
-            <div className="form-group">
+          <label>
+            Exam Type
 
-              <label>
-                Course Title
-              </label>
+            <select
+              name="examType"
+              value={form.examType}
+              onChange={handleChange}
+              required
+            >
 
-              <input
-                name="courseTitle"
-                value={form.courseTitle}
-                onChange={handleChange}
-                placeholder="e.g. Data Structures"
-                required
-              />
+              <option value="">
+                Select exam type
+              </option>
 
-            </div>
+              <option value="Midterm">
+                Midterm
+              </option>
 
+              <option value="Final">
+                Final
+              </option>
 
-            <div className="form-group">
+              <option value="Quiz">
+                Quiz
+              </option>
 
-              <label>
-                Exam Type
-              </label>
+              <option value="Assignment">
+                Assignment
+              </option>
 
-              <select
-                name="examType"
-                value={form.examType}
-                onChange={handleChange}
-                required
-              >
-                <option value="">
-                  Select exam type
-                </option>
+              <option value="Other">
+                Other
+              </option>
 
-                <option value="Midterm">
-                  Midterm
-                </option>
+            </select>
 
-                <option value="Final">
-                  Final
-                </option>
-
-                <option value="Quiz">
-                  Quiz
-                </option>
-
-                <option value="Other">
-                  Other
-                </option>
-              </select>
-
-            </div>
+          </label>
 
 
-            <div className="form-group">
+          <label>
+            Session / Year
 
-              <label>
-                Session / Year
-              </label>
+            <input
+              type="text"
+              name="sessionYear"
+              value={form.sessionYear}
+              onChange={handleChange}
+              placeholder="e.g. 2025-2026"
+              required
+            />
 
-              <input
-                name="sessionYear"
-                value={form.sessionYear}
-                onChange={handleChange}
-                placeholder="e.g. 2025"
-                required
-              />
-
-            </div>
+          </label>
 
 
-            <div className="form-group full-width">
+          <label>
+            Question Paper
 
-              <label>
-                Question Paper
-              </label>
+            <input
+              id="question-file"
+              type="file"
+              name="file"
+              accept=".pdf,.jpg,.jpeg,.png,.webp"
+              onChange={handleChange}
+              required
+            />
 
-              <div className="file-input-wrapper">
+          </label>
 
-                <input
-                  id="question-file"
-                  type="file"
-                  name="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.webp"
-                  onChange={handleChange}
-                  required
-                />
 
-              </div>
-
-              <small>
-                PDF, JPG, PNG or WEBP. Maximum 10MB.
-              </small>
-
-            </div>
-
-          </div>
+          {form.file && (
+            <p className="file-selected">
+              Selected file:{" "}
+              <strong>
+                {form.file.name}
+              </strong>
+            </p>
+          )}
 
 
           {error && (
-            <div className="form-error">
+            <p className="form-error">
               {error}
-            </div>
+            </p>
           )}
 
 
           {message && (
-            <div className="form-success">
+            <p className="form-success">
               {message}
-            </div>
+            </p>
           )}
 
 
@@ -1204,16 +1499,16 @@ function UploadQuestion() {
             >
               {loading
                 ? "Uploading..."
-                : "Upload Question"}
+                : "Upload Question Paper"}
             </button>
 
 
             <button
               type="button"
               className="secondary-btn"
-              onClick={() => navigate("/questions")}
+              onClick={() => navigate("/")}
             >
-              View Questions
+              ← Back Home
             </button>
 
           </div>
@@ -1228,7 +1523,7 @@ function UploadQuestion() {
 
 
 // ============================================================
-// RESOURCE PLACEHOLDER
+// RESOURCE PAGE
 // ============================================================
 
 function ResourcePage({
@@ -1247,17 +1542,21 @@ function ResourcePage({
             {icon}
           </div>
 
+
           <span className="page-eyebrow">
             COMING SOON
           </span>
+
 
           <h1>
             {title}
           </h1>
 
+
           <p>
             {description}
           </p>
+
 
           <div className="resource-actions">
 
@@ -1267,6 +1566,7 @@ function ResourcePage({
             >
               Browse Questions
             </Link>
+
 
             <Link
               to="/upload"
@@ -1302,13 +1602,17 @@ function NotFound() {
             404
           </div>
 
+
           <h1>
             Page not found
           </h1>
 
+
           <p>
-            The page you are looking for does not exist.
+            The page you are looking for
+            does not exist.
           </p>
+
 
           <Link
             to="/"
@@ -1331,6 +1635,7 @@ function NotFound() {
 // ============================================================
 
 export default function App() {
+
   return (
     <BrowserRouter>
 
@@ -1338,20 +1643,31 @@ export default function App() {
 
         <Routes>
 
+          {/* HOME */}
+
           <Route
             path="/"
             element={<Home />}
           />
+
+
+          {/* QUESTIONS */}
 
           <Route
             path="/questions"
             element={<Questions />}
           />
 
+
+          {/* UPLOAD */}
+
           <Route
             path="/upload"
             element={<UploadQuestion />}
           />
+
+
+          {/* NOTES */}
 
           <Route
             path="/notes"
@@ -1364,6 +1680,9 @@ export default function App() {
             }
           />
 
+
+          {/* BOOKS */}
+
           <Route
             path="/books"
             element={
@@ -1375,6 +1694,9 @@ export default function App() {
             }
           />
 
+
+          {/* SYLLABUS */}
+
           <Route
             path="/syllabus"
             element={
@@ -1385,6 +1707,17 @@ export default function App() {
               />
             }
           />
+
+
+          {/* AI */}
+
+          <Route
+            path="/ai"
+            element={<AIChat />}
+          />
+
+
+          {/* 404 */}
 
           <Route
             path="*"
