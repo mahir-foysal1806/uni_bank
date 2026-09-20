@@ -1379,3 +1379,81 @@ footer {
   }
 
 }
+/* ============================================================
+   QUESTION PAGINATION
+============================================================ */
+
+.question-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 28px 0 10px;
+}
+
+.pagination-btn {
+  min-width: 42px;
+  height: 42px;
+  padding: 0 14px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #334155;
+
+  font-weight: 700;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.pagination-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.45;
+}
+
+.pagination-info {
+  margin: 0 8px;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .question-filter {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .question-filter input {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .question-filter {
+    grid-template-columns: 1fr;
+  }
+
+  .question-filter input {
+    grid-column: auto;
+  }
+
+  .filter-btn,
+  .clear-btn {
+    width: 100%;
+  }
+
+  .question-pagination {
+    flex-wrap: wrap;
+  }
+}
+

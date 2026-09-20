@@ -733,188 +733,230 @@ function QuestionCard({ question }) {
 // ============================================================
 
 function Questions() {
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [
-    searchParams,
-    setSearchParams,
-  ] = useSearchParams();
+  const [questions, setQuestions] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [semesters, setSemesters] = useState([]);
+  const [examTypes, setExamTypes] = useState([]);
+  const [sessionYears, setSessionYears] = useState([]);
 
+  const [keyword, setKeyword] = useState(
+    searchParams.get("keyword") || ""
+  );
 
-  const [questions, setQuestions] =
-    useState([]);
+  const [department, setDepartment] = useState(
+    searchParams.get("department") || ""
+  );
 
-  const [departments, setDepartments] =
-    useState([]);
+  const [semester, setSemester] = useState(
+    searchParams.get("semester") || ""
+  );
 
-  const [semesters, setSemesters] =
-    useState([]);
+  const [courseCode, setCourseCode] = useState(
+    searchParams.get("courseCode") || ""
+  );
 
+  const [examType, setExamType] = useState(
+    searchParams.get("examType") || ""
+  );
 
-  const [keyword, setKeyword] =
-    useState(
-      searchParams.get("keyword") || ""
-    );
+  const [sessionYear, setSessionYear] = useState(
+    searchParams.get("sessionYear") || ""
+  );
 
+  const [pagination, setPagination] = useState({
+    page: Number(searchParams.get("page")) || 1,
+    limit: 12,
+    total: 0,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
 
-  const [department, setDepartment] =
-    useState(
-      searchParams.get("department") || ""
-    );
-
-
-  const [semester, setSemester] =
-    useState(
-      searchParams.get("semester") || ""
-    );
-
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [error, setError] =
-    useState("");
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const loadQuestions = async () => {
-
     try {
-
       setLoading(true);
       setError("");
 
+      const params = new URLSearchParams();
 
-      const params =
-        new URLSearchParams();
-
+      const page = Number(searchParams.get("page")) || 1;
+      const limit = 12;
 
       if (keyword.trim()) {
-        params.set(
-          "keyword",
-          keyword.trim()
-        );
+        params.set("keyword", keyword.trim());
       }
-
 
       if (department) {
-        params.set(
-          "department",
-          department
-        );
+        params.set("department", department);
       }
-
 
       if (semester) {
-        params.set(
-          "semester",
-          semester
-        );
+        params.set("semester", semester);
       }
 
+      if (courseCode.trim()) {
+        params.set("courseCode", courseCode.trim());
+      }
 
-      const query =
-        params.toString();
+      if (examType) {
+        params.set("examType", examType);
+      }
 
+      if (sessionYear) {
+        params.set("sessionYear", sessionYear);
+      }
 
-      const url =
-        `${API_URL}/api/questions` +
-        (query ? `?${query}` : "");
+      params.set("page", page);
+      params.set("limit", limit);
 
-
-      const result =
-        await apiRequest(url);
-
-
-      setQuestions(
-        result?.data?.questions || []
+      const result = await apiRequest(
+        `${API_URL}/api/questions?${params.toString()}`
       );
 
+      setQuestions(result?.data?.questions || []);
 
-      setDepartments(
-        result?.data?.departments || []
+      const filters = result?.data?.filters || {};
+
+      setDepartments(filters.departments || []);
+      setSemesters(filters.semesters || []);
+      setExamTypes(filters.examTypes || []);
+      setSessionYears(filters.sessionYears || []);
+
+      setPagination(
+        result?.data?.pagination || {
+          page,
+          limit,
+          total: 0,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        }
       );
-
-
-      setSemesters(
-        result?.data?.semesters || []
-      );
-
     } catch (err) {
-
       console.error(err);
 
       setError(
-        err.message ||
-          "Unable to load question papers."
+        err.message || "Unable to load question papers."
       );
-
     } finally {
-
       setLoading(false);
-
     }
   };
 
-
   useEffect(() => {
-
     loadQuestions();
-
-  }, [
-    searchParams.toString(),
-  ]);
-
+  }, [searchParams.toString()]);
 
   const handleSearch = (event) => {
-
     event.preventDefault();
-
 
     const params = {};
 
-
     if (keyword.trim()) {
-      params.keyword =
-        keyword.trim();
+      params.keyword = keyword.trim();
     }
-
 
     if (department) {
-      params.department =
-        department;
+      params.department = department;
     }
-
 
     if (semester) {
-      params.semester =
-        semester;
+      params.semester = semester;
     }
 
+    if (courseCode.trim()) {
+      params.courseCode = courseCode.trim();
+    }
+
+    if (examType) {
+      params.examType = examType;
+    }
+
+    if (sessionYear) {
+      params.sessionYear = sessionYear;
+    }
+
+    params.page = "1";
 
     setSearchParams(params);
   };
 
-
   const clearFilters = () => {
-
     setKeyword("");
     setDepartment("");
     setSemester("");
+    setCourseCode("");
+    setExamType("");
+    setSessionYear("");
 
     setSearchParams({});
   };
 
+  const changePage = (page) => {
+    if (
+      page < 1 ||
+      page > pagination.totalPages ||
+      page === pagination.page
+    ) {
+      return;
+    }
+
+    const params = {};
+
+    if (keyword.trim()) {
+      params.keyword = keyword.trim();
+    }
+
+    if (department) {
+      params.department = department;
+    }
+
+    if (semester) {
+      params.semester = semester;
+    }
+
+    if (courseCode.trim()) {
+      params.courseCode = courseCode.trim();
+    }
+
+    if (examType) {
+      params.examType = examType;
+    }
+
+    if (sessionYear) {
+      params.sessionYear = sessionYear;
+    }
+
+    params.page = String(page);
+
+    setSearchParams(params);
+  };
+
+  const visiblePages = [];
+
+  for (let page = 1; page <= pagination.totalPages; page++) {
+    if (
+      page === 1 ||
+      page === pagination.totalPages ||
+      Math.abs(page - pagination.page) <= 2
+    ) {
+      visiblePages.push(page);
+    }
+  }
 
   return (
     <section className="page-section">
-
       <div className="container">
 
         {/* HEADER */}
 
         <div className="page-header">
-
           <div>
-
             <span className="page-eyebrow">
               QUESTION BANK
             </span>
@@ -927,9 +969,7 @@ function Questions() {
               Search and download previous
               university question papers.
             </p>
-
           </div>
-
 
           <Link
             to="/upload"
@@ -937,26 +977,32 @@ function Questions() {
           >
             + Upload Question
           </Link>
-
         </div>
 
 
-        {/* FILTER */}
+        {/* ADVANCED FILTER */}
 
         <form
           className="question-filter"
           onSubmit={handleSearch}
         >
-
           <input
             type="text"
-            placeholder="Course code, title, department..."
+            placeholder="Search by keyword, course title..."
             value={keyword}
             onChange={(event) =>
               setKeyword(event.target.value)
             }
           />
 
+          <input
+            type="text"
+            placeholder="Course Code"
+            value={courseCode}
+            onChange={(event) =>
+              setCourseCode(event.target.value)
+            }
+          />
 
           <select
             value={department}
@@ -964,22 +1010,16 @@ function Questions() {
               setDepartment(event.target.value)
             }
           >
-
             <option value="">
               All Departments
             </option>
 
             {departments.map((item) => (
-              <option
-                key={item}
-                value={item}
-              >
+              <option key={item} value={item}>
                 {item}
               </option>
             ))}
-
           </select>
-
 
           <select
             value={semester}
@@ -987,22 +1027,50 @@ function Questions() {
               setSemester(event.target.value)
             }
           >
-
             <option value="">
               All Semesters
             </option>
 
             {semesters.map((item) => (
-              <option
-                key={item}
-                value={item}
-              >
+              <option key={item} value={item}>
                 {item}
               </option>
             ))}
-
           </select>
 
+          <select
+            value={examType}
+            onChange={(event) =>
+              setExamType(event.target.value)
+            }
+          >
+            <option value="">
+              All Exam Types
+            </option>
+
+            {examTypes.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={sessionYear}
+            onChange={(event) =>
+              setSessionYear(event.target.value)
+            }
+          >
+            <option value="">
+              All Sessions
+            </option>
+
+            {sessionYears.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </select>
 
           <button
             type="submit"
@@ -1011,7 +1079,6 @@ function Questions() {
             Search
           </button>
 
-
           <button
             type="button"
             className="clear-btn"
@@ -1019,7 +1086,6 @@ function Questions() {
           >
             Clear
           </button>
-
         </form>
 
 
@@ -1027,15 +1093,13 @@ function Questions() {
 
         {!loading && !error && (
           <div className="result-bar">
-
             <span>
-              {questions.length}{" "}
-              {questions.length === 1
+              {pagination.total}{" "}
+              {pagination.total === 1
                 ? "question"
                 : "questions"}{" "}
               found
             </span>
-
           </div>
         )}
 
@@ -1044,13 +1108,11 @@ function Questions() {
 
         {loading && (
           <div className="state-box">
-
             <div className="loader"></div>
 
             <p>
               Loading question papers...
             </p>
-
           </div>
         )}
 
@@ -1059,7 +1121,6 @@ function Questions() {
 
         {!loading && error && (
           <div className="error-box">
-
             <strong>
               Unable to load questions
             </strong>
@@ -1074,7 +1135,6 @@ function Questions() {
             >
               Try Again
             </button>
-
           </div>
         )}
 
@@ -1084,9 +1144,7 @@ function Questions() {
         {!loading &&
           !error &&
           questions.length === 0 && (
-
             <div className="empty-box">
-
               <div className="empty-icon">
                 📄
               </div>
@@ -1106,7 +1164,6 @@ function Questions() {
               >
                 Clear Filters
               </button>
-
             </div>
           )}
 
@@ -1116,23 +1173,86 @@ function Questions() {
         {!loading &&
           !error &&
           questions.length > 0 && (
+            <>
+              <div className="questions-grid">
+                {questions.map((question) => (
+                  <QuestionCard
+                    key={question.id}
+                    question={question}
+                  />
+                ))}
+              </div>
 
-            <div className="questions-grid">
 
-              {questions.map((question) => (
+              {/* PAGINATION */}
 
-                <QuestionCard
-                  key={question.id}
-                  question={question}
-                />
+              {pagination.totalPages > 1 && (
+                <div className="question-pagination">
 
-              ))}
+                  <button
+                    type="button"
+                    className="pagination-btn"
+                    disabled={!pagination.hasPreviousPage}
+                    onClick={() =>
+                      changePage(pagination.page - 1)
+                    }
+                  >
+                    ← Previous
+                  </button>
 
-            </div>
+                  {visiblePages.map((page, index) => {
+                    const previousPage =
+                      visiblePages[index - 1];
+
+                    const showDots =
+                      index > 0 &&
+                      page - previousPage > 1;
+
+                    return (
+                      <React.Fragment key={page}>
+
+                        {showDots && (
+                          <span className="pagination-info">
+                            ...
+                          </span>
+                        )}
+
+                        <button
+                          type="button"
+                          className={`pagination-btn ${
+                            page === pagination.page
+                              ? "active"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            changePage(page)
+                          }
+                        >
+                          {page}
+                        </button>
+
+                      </React.Fragment>
+                    );
+                  })}
+
+                  <button
+                    type="button"
+                    className="pagination-btn"
+                    disabled={!pagination.hasNextPage}
+                    onClick={() =>
+                      changePage(pagination.page + 1)
+                    }
+                  >
+                    Next →
+                  </button>
+
+                </div>
+              )}
+
+            </>
           )}
 
       </div>
-
     </section>
   );
 }

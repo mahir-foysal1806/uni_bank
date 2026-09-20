@@ -1,10 +1,11 @@
 const {
-  getAllQuestions,
   searchQuestions,
   getQuestionById,
   incrementDownloadCount,
   getDistinctDepartments,
   getDistinctSemesters,
+  getDistinctExamTypes,
+  getDistinctSessionYears,
   insertQuestion,
 } = require("../models/questionModel");
 
@@ -16,33 +17,58 @@ const {
 const fs = require("fs/promises");
 const path = require("path");
 
+/**
+ * GET /api/questions
+ * Advanced search + filter + pagination
+ */
 async function getQuestions(req, res, next) {
   try {
     const {
+      keyword = "",
       department = "",
       semester = "",
-      keyword = "",
+      courseCode = "",
+      examType = "",
+      sessionYear = "",
       page = 1,
+      limit = 12,
     } = req.query;
 
-    const hasFilters = department || semester || keyword;
+    const [
+      result,
+      departments,
+      semesters,
+      examTypes,
+      sessionYears,
+    ] = await Promise.all([
+      searchQuestions({
+        keyword,
+        department,
+        semester,
+        courseCode,
+        examType,
+        sessionYear,
+        page,
+        limit,
+      }),
 
-    const questions = hasFilters
-      ? await searchQuestions({ department, semester, keyword })
-      : await getAllQuestions(Number(page));
-
-    const [departments, semesters] = await Promise.all([
       getDistinctDepartments(),
       getDistinctSemesters(),
+      getDistinctExamTypes(),
+      getDistinctSessionYears(),
     ]);
 
     res.json({
       success: true,
       data: {
-        questions,
-        departments,
-        semesters,
-        page: Number(page) || 1,
+        questions: result.questions,
+        pagination: result.pagination,
+        filters: {
+          departments,
+          semesters,
+          examTypes,
+          sessionYears,
+        },
       },
     });
   } catch (error) {
@@ -50,6 +76,9 @@ async function getQuestions(req, res, next) {
   }
 }
 
+/**
+ * GET /api/questions/:id
+ */
 async function getQuestion(req, res, next) {
   try {
     const question = await getQuestionById(req.params.id);
@@ -70,6 +99,9 @@ async function getQuestion(req, res, next) {
   }
 }
 
+/**
+ * POST /api/questions
+ */
 async function createQuestion(req, res, next) {
   let uploadedToStorage = false;
   let storageKey = null;
@@ -155,6 +187,9 @@ async function createQuestion(req, res, next) {
   }
 }
 
+/**
+ * GET /api/questions/:id/download
+ */
 async function downloadQuestion(req, res, next) {
   try {
     const question = await getQuestionById(req.params.id);
@@ -189,6 +224,9 @@ async function downloadQuestion(req, res, next) {
   }
 }
 
+/**
+ * Detect file content type
+ */
 function getContentType(fileName = "") {
   const extension = path.extname(fileName).toLowerCase();
 

@@ -1,6 +1,5 @@
 const pool = require("../config/db");
 
-
 /**
  * Insert a new question paper
  */
@@ -56,66 +55,45 @@ async function insertQuestion(data) {
   return rows[0];
 }
 
-
 /**
- * Get all questions with pagination
- */
-async function getAllQuestions(page = 1, limit = 12) {
-  const offset = (page - 1) * limit;
-
-  const query = `
-    SELECT *
-    FROM questions
-    ORDER BY uploaded_at DESC
-    LIMIT $1
-    OFFSET $2;
-  `;
-
-  const { rows } = await pool.query(query, [
-    limit,
-    offset,
-  ]);
-
-  return rows;
-}
-
-
-/**
- * Search questions
+ * Search and filter questions with pagination
  */
 async function searchQuestions(filters = {}) {
   const {
+    keyword = "",
     department = "",
     semester = "",
-    keyword = "",
+    courseCode = "",
+    examType = "",
+    sessionYear = "",
+    page = 1,
+    limit = 12,
   } = filters;
+
+  const safePage = Math.max(1, parseInt(page, 10) || 1);
+
+  const safeLimit = Math.min(
+    50,
+    Math.max(1, parseInt(limit, 10) || 12)
+  );
+
+  const offset = (safePage - 1) * safeLimit;
 
   const conditions = [];
   const values = [];
 
-  if (department) {
-    values.push(`%${department}%`);
-
-    conditions.push(`
-      (
-        department ILIKE $${values.length}
-        OR department ILIKE $${values.length + 1}
-      )
-    `);
-
-    values.push(`%${department}%`);
-  }
-
-  if (semester) {
-    values.push(`%${semester}%`);
-
-    conditions.push(`
-      semester ILIKE $${values.length}
-    `);
-  }
-
-  if (keyword) {
+  /**
+   * Keyword search
+   *
+   * Searches across:
+   * - course code
+   * - course title
+   * - department
+   * - original filename
+   */
+  if (keyword.trim()) {
     const keywords = keyword
+      .trim()
       .split(/\s+/)
       .filter(Boolean);
 
@@ -128,33 +106,135 @@ async function searchQuestions(filters = {}) {
         (
           course_code ILIKE $${index}
           OR course_title ILIKE $${index}
-          OR original_name ILIKE $${index}
           OR department ILIKE $${index}
+          OR original_name ILIKE $${index}
         )
       `);
     }
   }
 
-  let query = `
-    SELECT *
-    FROM questions
-  `;
+  /**
+   * Department filter
+   */
+  if (department.trim()) {
+    values.push(`%${department.trim()}%`);
 
-  if (conditions.length > 0) {
-    query += `
-      WHERE ${conditions.join(" AND ")}
-    `;
+    conditions.push(`
+      department ILIKE $${values.length}
+    `);
   }
 
-  query += `
-    ORDER BY uploaded_at DESC;
+  /**
+   * Semester filter
+   */
+  if (semester.trim()) {
+    values.push(`%${semester.trim()}%`);
+
+    conditions.push(`
+      semester ILIKE $${values.length}
+    `);
+  }
+
+  /**
+   * Course code filter
+   */
+  if (courseCode.trim()) {
+    values.push(`%${courseCode.trim()}%`);
+
+    conditions.push(`
+      course_code ILIKE $${values.length}
+    `);
+  }
+
+  /**
+   * Exam type filter
+   */
+  if (examType.trim()) {
+    values.push(`%${examType.trim()}%`);
+
+    conditions.push(`
+      exam_type ILIKE $${values.length}
+    `);
+  }
+
+  /**
+   * Session year filter
+   */
+  if (sessionYear.trim()) {
+    values.push(`%${sessionYear.trim()}%`);
+
+    conditions.push(`
+      session_year ILIKE $${values.length}
+    `);
+  }
+
+  /**
+   * WHERE clause
+   */
+  const whereClause =
+    conditions.length > 0
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
+
+  /**
+   * Count total matching records
+   */
+  const countQuery = `
+    SELECT COUNT(*)::INTEGER AS total
+    FROM questions
+    ${whereClause};
   `;
 
-  const { rows } = await pool.query(query, values);
+  const countResult = await pool.query(
+    countQuery,
+    values
+  );
 
-  return rows;
+  const total = countResult.rows[0].total;
+
+  /**
+   * Get paginated records
+   */
+  const dataValues = [...values];
+
+  dataValues.push(safeLimit);
+  const limitIndex = dataValues.length;
+
+  dataValues.push(offset);
+  const offsetIndex = dataValues.length;
+
+  const query = `
+    SELECT *
+    FROM questions
+    ${whereClause}
+    ORDER BY uploaded_at DESC
+    LIMIT $${limitIndex}
+    OFFSET $${offsetIndex};
+  `;
+
+  const { rows } = await pool.query(
+    query,
+    dataValues
+  );
+
+  const totalPages =
+    total === 0
+      ? 0
+      : Math.ceil(total / safeLimit);
+
+  return {
+    questions: rows,
+
+    pagination: {
+      page: safePage,
+      limit: safeLimit,
+      total,
+      totalPages,
+      hasNextPage: safePage < totalPages,
+      hasPreviousPage: safePage > 1,
+    },
+  };
 }
-
 
 /**
  * Get one question by ID
@@ -171,7 +251,6 @@ async function getQuestionById(id) {
   return rows[0];
 }
 
-
 /**
  * Increment download count
  */
@@ -184,7 +263,6 @@ async function incrementDownloadCount(id) {
 
   await pool.query(query, [id]);
 }
-
 
 /**
  * Get distinct departments
@@ -203,7 +281,6 @@ async function getDistinctDepartments() {
   return rows.map((row) => row.department);
 }
 
-
 /**
  * Get distinct semesters
  */
@@ -221,13 +298,47 @@ async function getDistinctSemesters() {
   return rows.map((row) => row.semester);
 }
 
+/**
+ * Get distinct exam types
+ */
+async function getDistinctExamTypes() {
+  const query = `
+    SELECT DISTINCT exam_type
+    FROM questions
+    WHERE exam_type IS NOT NULL
+      AND exam_type <> ''
+    ORDER BY exam_type ASC;
+  `;
+
+  const { rows } = await pool.query(query);
+
+  return rows.map((row) => row.exam_type);
+}
+
+/**
+ * Get distinct session years
+ */
+async function getDistinctSessionYears() {
+  const query = `
+    SELECT DISTINCT session_year
+    FROM questions
+    WHERE session_year IS NOT NULL
+      AND session_year <> ''
+    ORDER BY session_year DESC;
+  `;
+
+  const { rows } = await pool.query(query);
+
+  return rows.map((row) => row.session_year);
+}
 
 module.exports = {
   insertQuestion,
-  getAllQuestions,
   searchQuestions,
   getQuestionById,
   incrementDownloadCount,
   getDistinctDepartments,
   getDistinctSemesters,
+  getDistinctExamTypes,
+  getDistinctSessionYears,
 };
