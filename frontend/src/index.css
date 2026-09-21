@@ -901,43 +901,163 @@ img {
 /* ============================================================
    UPLOAD
 ============================================================ */
+/* ============================================================
+   UPLOAD QUESTION PAGE
+============================================================ */
+
+.upload-page {
+  background: #f8fafc;
+}
 
 .upload-container {
-  max-width: 900px;
+  max-width: 980px;
 }
+
+
+/* =========================
+   PAGE HEADER
+========================= */
+
+.upload-page-header {
+  margin-bottom: 28px;
+}
+
+.upload-page-header h1 {
+  margin-top: 8px;
+
+  color: #0f172a;
+
+  font-size: 42px;
+  line-height: 1.1;
+  font-weight: 800;
+
+  letter-spacing: -1.5px;
+}
+
+.upload-page-header p {
+  margin-top: 12px;
+
+  color: #64748b;
+
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+
+/* =========================
+   MAIN FORM
+========================= */
 
 .upload-form {
   background: #ffffff;
 
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: 18px;
 
-  padding: 28px;
+  padding: 32px;
 
   box-shadow:
-    0 8px 25px rgba(15, 23, 42, 0.05);
+    0 10px 30px rgba(15, 23, 42, 0.05);
 }
 
-.form-grid {
+
+/* =========================
+   FORM SECTION
+========================= */
+
+.upload-section {
+  padding: 4px 0 30px;
+}
+
+.file-section {
+  padding-top: 30px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+
+/* =========================
+   SECTION HEADING
+========================= */
+
+.upload-section-heading {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 14px;
+
+  margin-bottom: 24px;
+}
+
+.upload-section-icon {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+  font-size: 19px;
+}
+
+.upload-section-heading h2 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.upload-section-heading p {
+  margin-top: 4px;
+
+  color: #64748b;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* =========================
+   FORM GRID
+========================= */
+
+.upload-form .form-grid {
   display: grid;
 
   grid-template-columns:
-    repeat(2, 1fr);
+    repeat(2, minmax(0, 1fr));
 
   gap: 20px;
 }
 
-.form-group {
+
+/* =========================
+   FORM GROUP
+========================= */
+
+.upload-form .form-group {
   display: flex;
+
   flex-direction: column;
+
+  min-width: 0;
 }
 
-.form-group.full-width {
-  grid-column: 1 / -1;
-}
+.upload-form .form-group label {
+  display: block;
 
-.form-group label {
-  margin-bottom: 7px;
+  margin-bottom: 8px;
 
   color: #334155;
 
@@ -945,71 +1065,233 @@ img {
   font-weight: 700;
 }
 
-.form-group input,
-.form-group select {
+.upload-form .form-group label span {
+  margin-left: 3px;
+
+  color: #2563eb;
+}
+
+
+/* =========================
+   INPUTS
+========================= */
+
+.upload-form .form-group input,
+.upload-form .form-group select {
+  box-sizing: border-box;
+
   width: 100%;
-  height: 46px;
+  height: 48px;
+
+  padding: 0 14px;
 
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
-
-  padding: 0 13px;
+  border-radius: 9px;
 
   outline: none;
 
   background: #ffffff;
-  color: #334155;
+
+  color: #0f172a;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.upload-form .form-group input::placeholder {
+  color: #94a3b8;
+}
+
+.upload-form .form-group input:hover,
+.upload-form .form-group select:hover {
+  border-color: #94a3b8;
+}
+
+.upload-form .form-group input:focus,
+.upload-form .form-group select:focus {
   border-color: #2563eb;
 
   box-shadow:
-    0 0 0 3px rgba(37, 99, 235, 0.1);
+    0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
-.form-group small {
-  margin-top: 7px;
+
+/* =========================
+   FILE UPLOAD
+========================= */
+
+.file-upload-area {
+  min-height: 230px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 28px;
+
+  box-sizing: border-box;
+
+  border: 1.5px dashed #bfdbfe;
+  border-radius: 14px;
+
+  background: #f8fbff;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.file-upload-area:hover {
+  border-color: #60a5fa;
+
+  background: #f0f7ff;
+
+  transform: translateY(-1px);
+}
+
+.file-upload-icon {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 15px;
+
+  border-radius: 15px;
+
+  background: #dbeafe;
+
+  color: #2563eb;
+
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.file-upload-title {
+  max-width: 600px;
+
+  overflow: hidden;
+
+  color: #0f172a;
+
+  font-size: 16px;
+  font-weight: 750;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-upload-description {
+  margin-top: 6px;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+.choose-file-button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 17px;
+
+  padding: 9px 17px;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #2563eb;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.file-upload-area small {
+  margin-top: 13px;
 
   color: #94a3b8;
 
   font-size: 12px;
 }
 
-.file-input-wrapper {
-  padding: 12px;
+.hidden-file-input {
+  position: absolute;
 
-  border: 1px dashed #93c5fd;
-  border-radius: 9px;
+  width: 1px;
+  height: 1px;
 
-  background: #f8fbff;
+  overflow: hidden;
+
+  opacity: 0;
 }
 
-.file-input-wrapper input {
-  height: auto;
 
-  border: none;
+/* =========================
+   MESSAGES
+========================= */
 
-  padding: 0;
+.form-message {
+  display: flex;
 
-  background: transparent;
-}
+  align-items: flex-start;
 
-.file-input-wrapper input:focus {
-  box-shadow: none;
-}
+  gap: 11px;
 
-.form-error,
-.form-success {
-  margin-top: 20px;
+  margin-top: 22px;
 
-  padding: 12px 14px;
+  padding: 13px 15px;
 
-  border-radius: 8px;
+  border-radius: 10px;
 
   font-size: 13px;
-  font-weight: 600;
+}
+
+.form-message > span {
+  width: 23px;
+  height: 23px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.form-message strong {
+  display: block;
+
+  font-size: 13px;
+}
+
+.form-message p {
+  margin-top: 3px;
+
+  line-height: 1.5;
 }
 
 .form-error {
@@ -1017,7 +1299,13 @@ img {
 
   background: #fef2f2;
 
-  color: #b91c1c;
+  color: #991b1b;
+}
+
+.form-error > span {
+  background: #fee2e2;
+
+  color: #dc2626;
 }
 
 .form-success {
@@ -1025,21 +1313,124 @@ img {
 
   background: #f0fdf4;
 
-  color: #15803d;
+  color: #166534;
 }
 
-.form-actions {
+.form-success > span {
+  background: #dcfce7;
+
+  color: #16a34a;
+}
+
+
+/* =========================
+   ACTIONS
+========================= */
+
+.upload-actions {
   display: flex;
 
-  gap: 10px;
+  align-items: center;
 
-  margin-top: 25px;
+  gap: 12px;
 
-  padding-top: 22px;
+  margin-top: 28px;
+
+  padding-top: 25px;
 
   border-top: 1px solid #f1f5f9;
 }
 
+.upload-submit-btn {
+  min-width: 210px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+}
+
+.upload-submit-btn:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.65;
+}
+
+.upload-actions .secondary-btn {
+  min-width: 150px;
+}
+
+
+/* =========================
+   BUTTON LOADER
+========================= */
+
+.button-spinner {
+  width: 15px;
+  height: 15px;
+
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #ffffff;
+
+  border-radius: 50%;
+
+  animation: upload-spin 0.7s linear infinite;
+}
+
+@keyframes upload-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+  .upload-page-header h1 {
+    font-size: 34px;
+
+    letter-spacing: -1px;
+  }
+
+  .upload-form {
+    padding: 22px 18px;
+
+    border-radius: 14px;
+  }
+
+  .upload-form .form-grid {
+    grid-template-columns: 1fr;
+
+    gap: 17px;
+  }
+
+  .file-upload-area {
+    min-height: 210px;
+
+    padding: 22px 15px;
+  }
+
+  .file-upload-title {
+    max-width: 280px;
+  }
+
+  .upload-actions {
+    flex-direction: column;
+  }
+
+  .upload-submit-btn,
+  .upload-actions .secondary-btn {
+    width: 100%;
+
+    min-width: 0;
+  }
+}
 
 /* ============================================================
    RESOURCE / COMING SOON

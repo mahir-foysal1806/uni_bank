@@ -1261,131 +1261,69 @@ function Questions() {
 // ============================================================
 // UPLOAD QUESTION
 // ============================================================
-
 function UploadQuestion() {
+  const navigate = useNavigate();
 
-  const navigate =
-    useNavigate();
+  const [form, setForm] = useState({
+    department: "",
+    semester: "",
+    courseCode: "",
+    courseTitle: "",
+    examType: "",
+    sessionYear: "",
+    file: null,
+  });
 
-
-  const [form, setForm] =
-    useState({
-      department: "",
-      semester: "",
-      courseCode: "",
-      courseTitle: "",
-      examType: "",
-      sessionYear: "",
-      file: null,
-    });
-
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [message, setMessage] =
-    useState("");
-
-  const [error, setError] =
-    useState("");
-
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleChange = (event) => {
-
-    const {
-      name,
-      value,
-      files,
-    } = event.target;
-
+    const { name, value, files } = event.target;
 
     setForm((previous) => ({
       ...previous,
-
-      [name]: files
-        ? files[0]
-        : value,
+      [name]: files ? files[0] : value,
     }));
+
+    if (name === "file") {
+      setError("");
+      setMessage("");
+    }
   };
 
-
   const handleSubmit = async (event) => {
-
     event.preventDefault();
-
 
     setLoading(true);
     setMessage("");
     setError("");
 
-
     if (!form.file) {
-
-      setError(
-        "Please select a PDF or image file."
-      );
-
+      setError("Please select a PDF or image file.");
       setLoading(false);
-
       return;
     }
 
+    const formData = new FormData();
 
-    const formData =
-      new FormData();
-
-
-    formData.append(
-      "department",
-      form.department
-    );
-
-    formData.append(
-      "semester",
-      form.semester
-    );
-
-    formData.append(
-      "courseCode",
-      form.courseCode
-    );
-
-    formData.append(
-      "courseTitle",
-      form.courseTitle
-    );
-
-    formData.append(
-      "examType",
-      form.examType
-    );
-
-    formData.append(
-      "sessionYear",
-      form.sessionYear
-    );
-
-    formData.append(
-      "file",
-      form.file
-    );
-
+    formData.append("department", form.department);
+    formData.append("semester", form.semester);
+    formData.append("courseCode", form.courseCode);
+    formData.append("courseTitle", form.courseTitle);
+    formData.append("examType", form.examType);
+    formData.append("sessionYear", form.sessionYear);
+    formData.append("file", form.file);
 
     try {
-
-      await apiRequest(
-        `${API_URL}/api/questions`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
+      await apiRequest(`${API_URL}/api/questions`, {
+        method: "POST",
+        body: formData,
+      });
 
       setMessage(
         "Question paper uploaded successfully."
       );
-
 
       setForm({
         department: "",
@@ -1397,43 +1335,32 @@ function UploadQuestion() {
         file: null,
       });
 
-
       const fileInput =
-        document.getElementById(
-          "question-file"
-        );
-
+        document.getElementById("question-file");
 
       if (fileInput) {
         fileInput.value = "";
       }
-
     } catch (err) {
-
       console.error(err);
 
       setError(
         err.message ||
           "Upload failed. Please try again."
       );
-
     } finally {
-
       setLoading(false);
-
     }
   };
 
-
   return (
-    <section className="page-section">
+    <section className="page-section upload-page">
+      <div className="container upload-container">
 
-      <div className="container">
-
-        <div className="page-header">
+        {/* PAGE HEADER */}
+        <div className="upload-page-header">
 
           <div>
-
             <span className="page-eyebrow">
               CONTRIBUTE
             </span>
@@ -1443,192 +1370,312 @@ function UploadQuestion() {
             </h1>
 
             <p>
-              Help other students by uploading
-              a university question paper.
+              Share a previous university question paper
+              and help other students.
             </p>
-
           </div>
 
         </div>
 
 
+        {/* FORM */}
         <form
           className="upload-form"
           onSubmit={handleSubmit}
         >
 
-          <label>
-            Department
+          {/* PAPER INFORMATION */}
+          <div className="upload-section">
 
-            <input
-              type="text"
-              name="department"
-              value={form.department}
-              onChange={handleChange}
-              placeholder="e.g. CSE"
-              required
-            />
+            <div className="upload-section-heading">
+              <div className="upload-section-icon">
+                📋
+              </div>
 
-          </label>
+              <div>
+                <h2>
+                  Paper Information
+                </h2>
 
-
-          <label>
-            Semester
-
-            <input
-              type="text"
-              name="semester"
-              value={form.semester}
-              onChange={handleChange}
-              placeholder="e.g. 3rd Semester"
-              required
-            />
-
-          </label>
+                <p>
+                  Add the basic information about this question paper.
+                </p>
+              </div>
+            </div>
 
 
-          <label>
-            Course Code
+            <div className="form-grid">
 
-            <input
-              type="text"
-              name="courseCode"
-              value={form.courseCode}
-              onChange={handleChange}
-              placeholder="e.g. CSE 2201"
-              required
-            />
+              {/* DEPARTMENT */}
+              <div className="form-group">
+                <label htmlFor="department">
+                  Department
+                  <span>*</span>
+                </label>
 
-          </label>
-
-
-          <label>
-            Course Title
-
-            <input
-              type="text"
-              name="courseTitle"
-              value={form.courseTitle}
-              onChange={handleChange}
-              placeholder="e.g. Data Structures"
-              required
-            />
-
-          </label>
+                <input
+                  id="department"
+                  type="text"
+                  name="department"
+                  value={form.department}
+                  onChange={handleChange}
+                  placeholder="e.g. CSE"
+                  required
+                />
+              </div>
 
 
-          <label>
-            Exam Type
+              {/* SEMESTER */}
+              <div className="form-group">
+                <label htmlFor="semester">
+                  Semester
+                  <span>*</span>
+                </label>
 
-            <select
-              name="examType"
-              value={form.examType}
-              onChange={handleChange}
-              required
+                <input
+                  id="semester"
+                  type="text"
+                  name="semester"
+                  value={form.semester}
+                  onChange={handleChange}
+                  placeholder="e.g. 3rd Semester"
+                  required
+                />
+              </div>
+
+
+              {/* COURSE CODE */}
+              <div className="form-group">
+                <label htmlFor="courseCode">
+                  Course Code
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="courseCode"
+                  type="text"
+                  name="courseCode"
+                  value={form.courseCode}
+                  onChange={handleChange}
+                  placeholder="e.g. CSE 2201"
+                  required
+                />
+              </div>
+
+
+              {/* COURSE TITLE */}
+              <div className="form-group">
+                <label htmlFor="courseTitle">
+                  Course Title
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="courseTitle"
+                  type="text"
+                  name="courseTitle"
+                  value={form.courseTitle}
+                  onChange={handleChange}
+                  placeholder="e.g. Data Structures"
+                  required
+                />
+              </div>
+
+
+              {/* EXAM TYPE */}
+              <div className="form-group">
+                <label htmlFor="examType">
+                  Exam Type
+                  <span>*</span>
+                </label>
+
+                <select
+                  id="examType"
+                  name="examType"
+                  value={form.examType}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">
+                    Select exam type
+                  </option>
+
+                  <option value="Midterm">
+                    Midterm
+                  </option>
+
+                  <option value="Final">
+                    Final
+                  </option>
+
+                  <option value="Quiz">
+                    Quiz
+                  </option>
+
+                  <option value="Other">
+                    Other
+                  </option>
+                </select>
+              </div>
+
+
+              {/* SESSION */}
+              <div className="form-group">
+                <label htmlFor="sessionYear">
+                  Session / Year
+                  <span>*</span>
+                </label>
+
+                <input
+                  id="sessionYear"
+                  type="text"
+                  name="sessionYear"
+                  value={form.sessionYear}
+                  onChange={handleChange}
+                  placeholder="e.g. 2025-2026"
+                  required
+                />
+              </div>
+
+            </div>
+
+          </div>
+
+
+          {/* FILE UPLOAD */}
+          <div className="upload-section file-section">
+
+            <div className="upload-section-heading">
+              <div className="upload-section-icon">
+                📄
+              </div>
+
+              <div>
+                <h2>
+                  Question Paper
+                </h2>
+
+                <p>
+                  Upload the question paper file.
+                </p>
+              </div>
+            </div>
+
+
+            <label
+              htmlFor="question-file"
+              className="file-upload-area"
             >
 
-              <option value="">
-                Select exam type
-              </option>
+              <div className="file-upload-icon">
+                ↑
+              </div>
 
-              <option value="Midterm">
-                Midterm
-              </option>
+              <div className="file-upload-title">
+                {form.file
+                  ? form.file.name
+                  : "Choose a question paper"}
+              </div>
 
-              <option value="Final">
-                Final
-              </option>
+              <div className="file-upload-description">
+                {form.file
+                  ? `${(
+                      form.file.size /
+                      1024 /
+                      1024
+                    ).toFixed(2)} MB`
+                  : "PDF, JPG, PNG or WEBP"}
+              </div>
 
-              <option value="Quiz">
-                Quiz
-              </option>
+              <span className="choose-file-button">
+                {form.file
+                  ? "Choose Another File"
+                  : "Choose File"}
+              </span>
 
-              <option value="Assignment">
-                Assignment
-              </option>
+              <small>
+                Maximum file size: 10MB
+              </small>
 
-              <option value="Other">
-                Other
-              </option>
-
-            </select>
-
-          </label>
-
-
-          <label>
-            Session / Year
-
-            <input
-              type="text"
-              name="sessionYear"
-              value={form.sessionYear}
-              onChange={handleChange}
-              placeholder="e.g. 2025-2026"
-              required
-            />
-
-          </label>
-
-
-          <label>
-            Question Paper
+            </label>
 
             <input
               id="question-file"
+              className="hidden-file-input"
               type="file"
               name="file"
               accept=".pdf,.jpg,.jpeg,.png,.webp"
               onChange={handleChange}
-              required
+              required={!form.file}
             />
 
-          </label>
+          </div>
 
 
-          {form.file && (
-            <p className="file-selected">
-              Selected file:{" "}
-              <strong>
-                {form.file.name}
-              </strong>
-            </p>
-          )}
-
-
+          {/* ERROR */}
           {error && (
-            <p className="form-error">
-              {error}
-            </p>
+            <div className="form-message form-error">
+              <span>!</span>
+
+              <div>
+                <strong>
+                  Upload failed
+                </strong>
+
+                <p>
+                  {error}
+                </p>
+              </div>
+            </div>
           )}
 
 
+          {/* SUCCESS */}
           {message && (
-            <p className="form-success">
-              {message}
-            </p>
+            <div className="form-message form-success">
+              <span>✓</span>
+
+              <div>
+                <strong>
+                  Upload successful
+                </strong>
+
+                <p>
+                  {message}
+                </p>
+              </div>
+            </div>
           )}
 
 
-          <div className="form-actions">
+          {/* ACTIONS */}
+          <div className="upload-actions">
 
             <button
               type="submit"
-              className="primary-btn"
+              className="primary-btn upload-submit-btn"
               disabled={loading}
             >
-              {loading
-                ? "Uploading..."
-                : "Upload Question Paper"}
+              {loading ? (
+                <>
+                  <span className="button-spinner"></span>
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  ↑ Upload Question Paper
+                </>
+              )}
             </button>
 
 
             <button
               type="button"
               className="secondary-btn"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/questions")}
+              disabled={loading}
             >
-              ← Back Home
+              View Questions
             </button>
 
           </div>
@@ -1636,7 +1683,6 @@ function UploadQuestion() {
         </form>
 
       </div>
-
     </section>
   );
 }
