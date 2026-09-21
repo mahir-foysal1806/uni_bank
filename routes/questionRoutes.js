@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   getQuestions,
+  getMeta,
   getQuestion,
   createQuestion,
   downloadQuestion,
@@ -13,6 +14,9 @@ const router = express.Router();
 
 // GET /api/questions
 router.get("/", getQuestions);
+
+// GET /api/questions/meta (must come before /:id)
+router.get("/meta", getMeta);
 
 // POST /api/questions
 router.post("/", upload.single("file"), createQuestion);

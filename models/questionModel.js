@@ -368,6 +368,40 @@ async function getDistinctSessionYears() {
   return rows.map((row) => row.session_year);
 }
 
+/**
+ * Get distinct course codes (for autocomplete suggestions)
+ */
+async function getDistinctCourseCodes() {
+  const query = `
+    SELECT DISTINCT course_code
+    FROM questions
+    WHERE course_code IS NOT NULL
+      AND course_code <> ''
+    ORDER BY course_code ASC;
+  `;
+
+  const { rows } = await pool.query(query);
+
+  return rows.map((row) => row.course_code);
+}
+
+/**
+ * Get distinct course titles (for autocomplete suggestions)
+ */
+async function getDistinctCourseTitles() {
+  const query = `
+    SELECT DISTINCT course_title
+    FROM questions
+    WHERE course_title IS NOT NULL
+      AND course_title <> ''
+    ORDER BY course_title ASC;
+  `;
+
+  const { rows } = await pool.query(query);
+
+  return rows.map((row) => row.course_title);
+}
+
 module.exports = {
   insertQuestion,
   findDuplicateQuestion,
@@ -378,4 +412,6 @@ module.exports = {
   getDistinctSemesters,
   getDistinctExamTypes,
   getDistinctSessionYears,
+  getDistinctCourseCodes,
+  getDistinctCourseTitles,
 };

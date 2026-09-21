@@ -1415,6 +1415,37 @@ function UploadQuestion() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const [suggestions, setSuggestions] = useState({
+    departments: [],
+    sessionYears: [],
+    courseCodes: [],
+    courseTitles: [],
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    apiRequest(`${API_URL}/api/questions/meta`)
+      .then((result) => {
+        if (isMounted && result?.data) {
+          setSuggestions({
+            departments: result.data.departments || [],
+            sessionYears: result.data.sessionYears || [],
+            courseCodes: result.data.courseCodes || [],
+            courseTitles: result.data.courseTitles || [],
+          });
+        }
+      })
+      .catch(() => {
+        // Suggestions are a convenience only; ignore failures
+        // so the upload form still works without them.
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const handleChange = (event) => {
     const { name, value, files } = event.target;
 
@@ -1557,8 +1588,16 @@ function UploadQuestion() {
                   value={form.department}
                   onChange={handleChange}
                   placeholder="e.g. CSE"
+                  list="department-suggestions"
+                  autoComplete="off"
                   required
                 />
+
+                <datalist id="department-suggestions">
+                  {suggestions.departments.map((item) => (
+                    <option key={item} value={item} />
+                  ))}
+                </datalist>
               </div>
 
 
@@ -1569,15 +1608,49 @@ function UploadQuestion() {
                   <span>*</span>
                 </label>
 
-                <input
+                <select
                   id="semester"
-                  type="text"
                   name="semester"
                   value={form.semester}
                   onChange={handleChange}
-                  placeholder="e.g. 3rd Semester"
                   required
-                />
+                >
+                  <option value="">
+                    Select semester
+                  </option>
+
+                  <option value="1st Semester">
+                    1st Semester
+                  </option>
+
+                  <option value="2nd Semester">
+                    2nd Semester
+                  </option>
+
+                  <option value="3rd Semester">
+                    3rd Semester
+                  </option>
+
+                  <option value="4th Semester">
+                    4th Semester
+                  </option>
+
+                  <option value="5th Semester">
+                    5th Semester
+                  </option>
+
+                  <option value="6th Semester">
+                    6th Semester
+                  </option>
+
+                  <option value="7th Semester">
+                    7th Semester
+                  </option>
+
+                  <option value="8th Semester">
+                    8th Semester
+                  </option>
+                </select>
               </div>
 
 
@@ -1595,8 +1668,16 @@ function UploadQuestion() {
                   value={form.courseCode}
                   onChange={handleChange}
                   placeholder="e.g. CSE 2201"
+                  list="course-code-suggestions"
+                  autoComplete="off"
                   required
                 />
+
+                <datalist id="course-code-suggestions">
+                  {suggestions.courseCodes.map((item) => (
+                    <option key={item} value={item} />
+                  ))}
+                </datalist>
               </div>
 
 
@@ -1614,8 +1695,16 @@ function UploadQuestion() {
                   value={form.courseTitle}
                   onChange={handleChange}
                   placeholder="e.g. Data Structures"
+                  list="course-title-suggestions"
+                  autoComplete="off"
                   required
                 />
+
+                <datalist id="course-title-suggestions">
+                  {suggestions.courseTitles.map((item) => (
+                    <option key={item} value={item} />
+                  ))}
+                </datalist>
               </div>
 
 
@@ -1637,16 +1726,24 @@ function UploadQuestion() {
                     Select exam type
                   </option>
 
-                  <option value="Midterm">
-                    Midterm
+                  <option value="Mid-1">
+                    Mid-1
+                  </option>
+
+                  <option value="Mid-2">
+                    Mid-2
+                  </option>
+
+                  <option value="Quiz-1">
+                    Quiz-1
+                  </option>
+
+                  <option value="Quiz-2">
+                    Quiz-2
                   </option>
 
                   <option value="Final">
                     Final
-                  </option>
-
-                  <option value="Quiz">
-                    Quiz
                   </option>
 
                   <option value="Other">
@@ -1670,8 +1767,16 @@ function UploadQuestion() {
                   value={form.sessionYear}
                   onChange={handleChange}
                   placeholder="e.g. 2025-2026"
+                  list="session-year-suggestions"
+                  autoComplete="off"
                   required
                 />
+
+                <datalist id="session-year-suggestions">
+                  {suggestions.sessionYears.map((item) => (
+                    <option key={item} value={item} />
+                  ))}
+                </datalist>
               </div>
 
             </div>

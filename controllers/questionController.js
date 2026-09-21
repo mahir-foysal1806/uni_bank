@@ -6,6 +6,8 @@ const {
   getDistinctSemesters,
   getDistinctExamTypes,
   getDistinctSessionYears,
+  getDistinctCourseCodes,
+  getDistinctCourseTitles,
   insertQuestion,
   findDuplicateQuestion,
 } = require("../models/questionModel");
@@ -70,6 +72,41 @@ async function getQuestions(req, res, next) {
           examTypes,
           sessionYears,
         },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * GET /api/questions/meta
+ * Returns suggestion lists (previously used values) for
+ * autocomplete on the upload form: department, course code,
+ * course title and session/year. Semester and exam type are
+ * fixed dropdowns on the frontend so they aren't needed here.
+ */
+async function getMeta(req, res, next) {
+  try {
+    const [
+      departments,
+      sessionYears,
+      courseCodes,
+      courseTitles,
+    ] = await Promise.all([
+      getDistinctDepartments(),
+      getDistinctSessionYears(),
+      getDistinctCourseCodes(),
+      getDistinctCourseTitles(),
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        departments,
+        sessionYears,
+        courseCodes,
+        courseTitles,
       },
     });
   } catch (error) {
@@ -268,6 +305,7 @@ function getContentType(fileName = "") {
 
 module.exports = {
   getQuestions,
+  getMeta,
   getQuestion,
   createQuestion,
   downloadQuestion,
