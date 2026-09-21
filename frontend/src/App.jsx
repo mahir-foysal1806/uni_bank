@@ -618,10 +618,45 @@ function Home() {
 // ============================================================
 
 function QuestionCard({ question }) {
-
   const downloadUrl =
     `${API_URL}/api/questions/${question.id}/download`;
 
+  const [downloadState, setDownloadState] = useState("idle");
+  const [downloadedUrl, setDownloadedUrl] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const handleDownload = async () => {
+    try {
+      setDownloadState("downloading");
+      setShowSuccess(false);
+
+      const response = await fetch(downloadUrl);
+
+      if (!response.ok) {
+        throw new Error("Download failed.");
+      }
+
+      const blob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+
+      setDownloadedUrl(objectUrl);
+
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download =
+        question.original_name || "question-paper";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setDownloadState("success");
+      setShowSuccess(true);
+    } catch (error) {
+      console.error(error);
+      setDownloadState("error");
+    }
+  };
 
   return (
     <article className="question-card">
@@ -633,7 +668,6 @@ function QuestionCard({ question }) {
         <div className="file-icon">
           📄
         </div>
-
 
         <div className="question-card-title">
 
@@ -657,46 +691,23 @@ function QuestionCard({ question }) {
       <div className="question-meta">
 
         <div>
-          <small>
-            Department
-          </small>
-
-          <strong>
-            {question.department || "—"}
-          </strong>
+          <small>Department</small>
+          <strong>{question.department || "—"}</strong>
         </div>
 
-
         <div>
-          <small>
-            Semester
-          </small>
-
-          <strong>
-            {question.semester || "—"}
-          </strong>
+          <small>Semester</small>
+          <strong>{question.semester || "—"}</strong>
         </div>
 
-
         <div>
-          <small>
-            Exam
-          </small>
-
-          <strong>
-            {question.exam_type || "—"}
-          </strong>
+          <small>Exam</small>
+          <strong>{question.exam_type || "—"}</strong>
         </div>
 
-
         <div>
-          <small>
-            Session
-          </small>
-
-          <strong>
-            {question.session_year || "—"}
-          </strong>
+          <small>Session</small>
+          <strong>{question.session_year || "—"}</strong>
         </div>
 
       </div>
@@ -711,17 +722,143 @@ function QuestionCard({ question }) {
             "Question paper"}
         </span>
 
-
-        <a
-          href={downloadUrl}
+        <button
+          type="button"
           className="download-btn"
-          target="_blank"
-          rel="noreferrer"
+          onClick={handleDownload}
+          disabled={downloadState === "downloading"}
         >
-          ↓ Download
-        </a>
+          {downloadState === "downloading"
+            ? "Downloading..."
+            : "↓ Download"}
+        </button>
 
       </div>
+
+
+      {/* DOWNLOAD SUCCESS */}
+
+      {showSuccess && (
+        <div className="download-success">
+
+          <div className="download-success-icon">
+            ✓
+          </div>
+
+          <div className="download-success-content">
+
+            <strong>
+              Download Successful
+            </strong>
+
+            <p>
+              Your question paper has been
+              downloaded successfully.
+            </p>
+
+            <div className="download-success-actions">
+
+              <button
+                type="button"
+                className="preview-btn"
+                onClick={() => setShowPreview(true)}
+              >
+                👁 Preview
+              </button>
+
+              <button
+                type="button"
+                className="success-close-btn"
+                onClick={() => setShowSuccess(false)}
+              >
+                Done
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
+
+      {/* DOWNLOAD ERROR */}
+
+      {downloadState === "error" && (
+        <div className="download-error">
+          ❌ Download failed. Please try again.
+        </div>
+      )}
+
+
+      {/* PREVIEW MODAL */}
+
+      {showPreview && downloadedUrl && (
+        <div
+          className="preview-overlay"
+          onClick={() => setShowPreview(false)}
+        >
+          <div
+            className="preview-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+
+            <div className="preview-header">
+
+              <div>
+                <strong>
+                  Question Paper Preview
+                </strong>
+
+                <span>
+                  {question.original_name ||
+                    "Question paper"}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="preview-close"
+                onClick={() => setShowPreview(false)}
+                aria-label="Close preview"
+              >
+                ×
+              </button>
+
+            </div>
+
+            <div className="preview-body">
+              <iframe
+                src={downloadedUrl}
+                title="Question paper preview"
+              />
+            </div>
+
+            <div className="preview-footer">
+
+              <a
+                href={downloadedUrl}
+                download={
+                  question.original_name ||
+                  "question-paper"
+                }
+                className="download-btn"
+              >
+                ↓ Download Again
+              </a>
+
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => setShowPreview(false)}
+              >
+                Close
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </article>
   );
