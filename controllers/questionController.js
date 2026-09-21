@@ -7,6 +7,7 @@ const {
   getDistinctExamTypes,
   getDistinctSessionYears,
   insertQuestion,
+  findDuplicateQuestion,
 } = require("../models/questionModel");
 
 const {
@@ -139,6 +140,29 @@ async function createQuestion(req, res, next) {
           message: `${field} is required.`,
         });
       }
+    }
+
+    /**
+     * Block duplicate uploads: same department, semester,
+     * course code, exam type and session year is treated as
+     * the same question paper already existing in the system.
+     */
+    const duplicate = await findDuplicateQuestion({
+      department,
+      semester,
+      courseCode,
+      examType,
+      sessionYear,
+    });
+
+    if (duplicate) {
+      await fs.unlink(req.file.path).catch(() => {});
+
+      return res.status(409).json({
+        success: false,
+        message:
+          "This question paper already exists (same department, semester, course code, exam type and session year). Duplicate upload is not allowed.",
+      });
     }
 
     storageKey = `questions/${Date.now()}-${req.file.filename}`;

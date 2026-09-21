@@ -56,6 +56,42 @@ async function insertQuestion(data) {
 }
 
 /**
+ * Check whether the same question paper (same department,
+ * semester, course code, exam type and session year) has
+ * already been uploaded, so duplicate uploads can be blocked.
+ */
+async function findDuplicateQuestion({
+  department,
+  semester,
+  courseCode,
+  examType,
+  sessionYear,
+}) {
+  const query = `
+    SELECT *
+    FROM questions
+    WHERE LOWER(department) = LOWER($1)
+      AND LOWER(semester) = LOWER($2)
+      AND LOWER(COALESCE(course_code, '')) = LOWER($3)
+      AND LOWER(COALESCE(exam_type, '')) = LOWER($4)
+      AND LOWER(COALESCE(session_year, '')) = LOWER($5)
+    LIMIT 1;
+  `;
+
+  const values = [
+    (department || "").trim(),
+    (semester || "").trim(),
+    (courseCode || "").trim(),
+    (examType || "").trim(),
+    (sessionYear || "").trim(),
+  ];
+
+  const { rows } = await pool.query(query, values);
+
+  return rows[0] || null;
+}
+
+/**
  * Search and filter questions with pagination
  */
 async function searchQuestions(filters = {}) {
@@ -334,6 +370,7 @@ async function getDistinctSessionYears() {
 
 module.exports = {
   insertQuestion,
+  findDuplicateQuestion,
   searchQuestions,
   getQuestionById,
   incrementDownloadCount,

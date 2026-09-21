@@ -21,3 +21,19 @@ CREATE TABLE IF NOT EXISTS questions (
 
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Optional extra safety net at the database level, in addition to the
+-- application-level duplicate check in questionController.js.
+-- Only run this if your existing data has no duplicates yet, otherwise
+-- it will fail to create. Prevents two uploads with the same
+-- department + semester + course_code + exam_type + session_year
+-- (case-insensitive) from both being saved, even if they happen at
+-- the exact same time.
+-- CREATE UNIQUE INDEX IF NOT EXISTS unique_question_combo
+--   ON questions (
+--     LOWER(department),
+--     LOWER(semester),
+--     LOWER(COALESCE(course_code, '')),
+--     LOWER(COALESCE(exam_type, '')),
+--     LOWER(COALESCE(session_year, ''))
+--   );
