@@ -12,6 +12,9 @@ import {
 
 import "./index.css";
 import AIChat from "./components/AIChat";
+import ReportModal from "./components/ReportModal";
+import AdminLogin from "./components/AdminLogin";
+import AdminModeration from "./components/AdminModeration";
 
 const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -625,6 +628,7 @@ function QuestionCard({ question }) {
   const [downloadedUrl, setDownloadedUrl] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showReport, setShowReport] = useState(false);
 
   const handleDownload = async () => {
     try {
@@ -733,7 +737,30 @@ function QuestionCard({ question }) {
             : "↓ Download"}
         </button>
 
+        <button
+          type="button"
+          onClick={() => setShowReport(true)}
+          style={{
+            background: "none",
+            border: "1px solid #e2e8f0",
+            borderRadius: "6px",
+            padding: "0.4rem 0.8rem",
+            marginLeft: "0.5rem",
+            cursor: "pointer",
+            color: "#64748b",
+          }}
+        >
+          🚩 Report
+        </button>
+
       </div>
+
+      {showReport && (
+        <ReportModal
+          questionId={question.id}
+          onClose={() => setShowReport(false)}
+        />
+      )}
 
 
       {/* DOWNLOAD SUCCESS */}
@@ -2122,6 +2149,19 @@ export default function App() {
           <Route
             path="/ai"
             element={<AIChat />}
+          />
+
+
+          {/* ADMIN */}
+
+          <Route
+            path="/admin/login"
+            element={<AdminLogin />}
+          />
+
+          <Route
+            path="/admin/moderation"
+            element={<AdminModeration />}
           />
 
 
