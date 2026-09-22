@@ -628,23 +628,47 @@ function QuestionCard({ question }) {
   const [downloadedUrl, setDownloadedUrl] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [showReport, setShowReport] = useState(false);
+
+  const ensurePreviewUrl = async () => {
+    if (downloadedUrl) {
+      return downloadedUrl;
+    }
+
+    const response = await fetch(downloadUrl);
+
+    if (!response.ok) {
+      throw new Error("Preview failed.");
+    }
+
+    const blob = await response.blob();
+    const objectUrl = window.URL.createObjectURL(blob);
+
+    setDownloadedUrl(objectUrl);
+
+    return objectUrl;
+  };
+
+  const handlePreview = async () => {
+    try {
+      setPreviewLoading(true);
+      await ensurePreviewUrl();
+      setShowPreview(true);
+    } catch (error) {
+      console.error(error);
+      setDownloadState("error");
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
 
   const handleDownload = async () => {
     try {
       setDownloadState("downloading");
       setShowSuccess(false);
 
-      const response = await fetch(downloadUrl);
-
-      if (!response.ok) {
-        throw new Error("Download failed.");
-      }
-
-      const blob = await response.blob();
-      const objectUrl = window.URL.createObjectURL(blob);
-
-      setDownloadedUrl(objectUrl);
+      const objectUrl = await ensurePreviewUrl();
 
       const link = document.createElement("a");
       link.href = objectUrl;
@@ -726,32 +750,37 @@ function QuestionCard({ question }) {
             "Question paper"}
         </span>
 
-        <button
-          type="button"
-          className="download-btn"
-          onClick={handleDownload}
-          disabled={downloadState === "downloading"}
-        >
-          {downloadState === "downloading"
-            ? "Downloading..."
-            : "↓ Download"}
-        </button>
+        <div className="question-card-actions">
 
-        <button
-          type="button"
-          onClick={() => setShowReport(true)}
-          style={{
-            background: "none",
-            border: "1px solid #e2e8f0",
-            borderRadius: "6px",
-            padding: "0.4rem 0.8rem",
-            marginLeft: "0.5rem",
-            cursor: "pointer",
-            color: "#64748b",
-          }}
-        >
-          🚩 Report
-        </button>
+          <button
+            type="button"
+            className="preview-inline-btn"
+            onClick={handlePreview}
+            disabled={previewLoading}
+          >
+            {previewLoading ? "Loading..." : "👁 Preview"}
+          </button>
+
+          <button
+            type="button"
+            className="download-btn"
+            onClick={handleDownload}
+            disabled={downloadState === "downloading"}
+          >
+            {downloadState === "downloading"
+              ? "Downloading..."
+              : "↓ Download"}
+          </button>
+
+          <button
+            type="button"
+            className="report-btn"
+            onClick={() => setShowReport(true)}
+          >
+            🚩 Report
+          </button>
+
+        </div>
 
       </div>
 

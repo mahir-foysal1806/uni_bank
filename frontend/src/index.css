@@ -814,6 +814,67 @@ img {
   transform: translateY(-1px);
 }
 
+.question-card-actions {
+  display: flex;
+
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+
+  gap: 8px;
+}
+
+.preview-inline-btn,
+.report-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  padding: 9px 13px;
+
+  border-radius: 7px;
+  border: 1px solid #e2e8f0;
+
+  background: #ffffff;
+  color: #475569;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.preview-inline-btn:hover,
+.report-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.preview-inline-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.report-btn {
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.report-btn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
 
 /* ============================================================
    STATES
@@ -1731,7 +1792,15 @@ footer {
     flex-direction: column;
   }
 
-  .download-btn {
+  .question-card-actions {
+    flex-direction: column;
+
+    width: 100%;
+  }
+
+  .download-btn,
+  .preview-inline-btn,
+  .report-btn {
     width: 100%;
   }
 
