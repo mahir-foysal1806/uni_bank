@@ -42,6 +42,8 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Allow requests without Origin
+      // such as curl/server-to-server requests.
       if (!origin) {
         return callback(null, true);
       }
@@ -51,17 +53,33 @@ app.use(
       }
 
       console.log("CORS blocked:", origin);
-      return callback(new Error("Not allowed by CORS"));
+
+      return callback(
+        new Error(`CORS blocked for origin: ${origin}`)
+      );
     },
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS",
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
+
     credentials: false,
   })
 );
 
 /*
 |--------------------------------------------------------------------------
-| Rate Limiting
+| Rate Limit
 |--------------------------------------------------------------------------
 */
 
@@ -102,7 +120,7 @@ app.use("/api/ai", aiRoutes);
 
 /*
 |--------------------------------------------------------------------------
-| Health Check
+| Health
 |--------------------------------------------------------------------------
 */
 
@@ -110,12 +128,13 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "UniQBank API is running",
+    version: "2.0.0",
   });
 });
 
 /*
 |--------------------------------------------------------------------------
-| ElasticLake Health Check
+| Storage Health
 |--------------------------------------------------------------------------
 */
 
@@ -143,7 +162,7 @@ app.get("/api/storage/health", async (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| Root API
+| Root
 |--------------------------------------------------------------------------
 */
 
@@ -158,7 +177,7 @@ app.get("/", (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| 404 Handler
+| 404
 |--------------------------------------------------------------------------
 */
 
@@ -172,7 +191,7 @@ app.use((req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| Global Error Handler
+| Error Handler
 |--------------------------------------------------------------------------
 */
 
@@ -191,10 +210,12 @@ app.use((error, req, res, next) => {
 
 /*
 |--------------------------------------------------------------------------
-| Start Server
+| Start
 |--------------------------------------------------------------------------
 */
 
-app.listen(PORT, () => {
-  console.log(`UniQBank API running at http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(
+    `UniQBank API running at http://localhost:${PORT}`
+  );
 });
