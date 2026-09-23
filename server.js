@@ -1,3 +1,4 @@
+
 require("dotenv").config();
 
 const express = require("express");
@@ -108,6 +109,43 @@ app.use(morgan("dev"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+/*
+|--------------------------------------------------------------------------
+| SEO - robots.txt
+|--------------------------------------------------------------------------
+*/
+
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain");
+
+  res.send(`User-agent: *
+Allow: /
+
+Sitemap: https://uni-bank-1.onrender.com/sitemap.xml
+`);
+});
+
+/*
+|--------------------------------------------------------------------------
+| SEO - sitemap.xml
+|--------------------------------------------------------------------------
+*/
+
+app.get("/sitemap.xml", (req, res) => {
+  res.type("application/xml");
+
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://uni-bank-1.onrender.com/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+</urlset>`);
+});
 
 /*
 |--------------------------------------------------------------------------
