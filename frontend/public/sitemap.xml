@@ -3,8 +3,22 @@
 
   <url>
     <loc>https://uni-bank-1.onrender.com/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://uni-bank-1.onrender.com/questions</loc>
+  </url>
+
+  <url>
+    <loc>https://uni-bank-1.onrender.com/notes</loc>
+  </url>
+
+  <url>
+    <loc>https://uni-bank-1.onrender.com/books</loc>
+  </url>
+
+  <url>
+    <loc>https://uni-bank-1.onrender.com/syllabus</loc>
   </url>
 
 </urlset>
