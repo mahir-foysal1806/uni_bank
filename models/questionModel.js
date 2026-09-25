@@ -92,6 +92,28 @@ async function findDuplicateQuestion({
 }
 
 /**
+ * Get all file_name values already used for a given course code.
+ * Used by the upload controller to generate a unique, human-
+ * readable stored filename (CourseCode + original extension)
+ * without overwriting an existing file when the same course code
+ * is uploaded multiple times.
+ */
+async function getFileNamesByCourseCode(courseCode) {
+  const query = `
+    SELECT file_name
+    FROM questions
+    WHERE LOWER(TRIM(COALESCE(course_code, ''))) = LOWER($1)
+      AND file_name IS NOT NULL;
+  `;
+
+  const values = [(courseCode || "").trim()];
+
+  const { rows } = await pool.query(query, values);
+
+  return rows.map((row) => row.file_name);
+}
+
+/**
  * Search and filter questions with pagination
  */
 async function searchQuestions(filters = {}) {
@@ -405,6 +427,7 @@ async function getDistinctCourseTitles() {
 module.exports = {
   insertQuestion,
   findDuplicateQuestion,
+  getFileNamesByCourseCode,
   searchQuestions,
   getQuestionById,
   incrementDownloadCount,

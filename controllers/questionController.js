@@ -10,6 +10,7 @@ const {
   getDistinctCourseTitles,
   insertQuestion,
   findDuplicateQuestion,
+  getFileNamesByCourseCode,
 } = require("../models/questionModel");
 
 const {
@@ -19,6 +20,76 @@ const {
 
 const fs = require("fs/promises");
 const path = require("path");
+
+/**
+ * Fallback extension lookup, used only when the uploaded file's
+ * original name has no extension at all (rare). Mirrors the
+ * mimetypes already allowed in middleware/upload.js — this is a
+ * safety net, not the primary extension source, so it does not
+ * hard-code the system to a single file type.
+ */
+const MIME_EXTENSION_FALLBACK = {
+  "application/pdf": ".pdf",
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+};
+
+/**
+ * Convert a Course Code into a safe, filesystem-friendly base
+ * filename: trimmed, with anything that isn't a letter, number,
+ * dash or underscore replaced by an underscore.
+ */
+function buildSafeCourseCodeBase(courseCode) {
+  const safe = String(courseCode || "")
+    .trim()
+    .replace(/[^a-zA-Z0-9-_]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  return safe || "question";
+}
+
+/**
+ * Detect the uploaded file's extension dynamically from its
+ * original filename (NOT hard-coded to PDF only). Falls back to a
+ * mimetype-based lookup only if the original filename has no
+ * extension.
+ */
+function detectExtension(file) {
+  const extFromName = path
+    .extname(file.originalname || "")
+    .toLowerCase();
+
+  if (extFromName) {
+    return extFromName;
+  }
+
+  return MIME_EXTENSION_FALLBACK[file.mimetype] || "";
+}
+
+/**
+ * Build a unique stored filename of the form "<CourseCode><ext>",
+ * falling back to "<CourseCode>-2<ext>", "<CourseCode>-3<ext>",
+ * etc. when a question paper with the same Course Code and
+ * extension already exists, so an existing stored file is never
+ * silently overwritten. Different extensions for the same Course
+ * Code (e.g. CSE1201.pdf and CSE1201.jpg) never collide.
+ */
+async function generateUniqueStoredFileName(courseCode, extension) {
+  const base = buildSafeCourseCodeBase(courseCode);
+  const existingNames = await getFileNamesByCourseCode(courseCode);
+  const existingSet = new Set(existingNames);
+
+  let candidate = `${base}${extension}`;
+  let counter = 2;
+
+  while (existingSet.has(candidate)) {
+    candidate = `${base}-${counter}${extension}`;
+    counter++;
+  }
+
+  return candidate;
+}
 
 /**
  * GET /api/questions
@@ -202,7 +273,21 @@ async function createQuestion(req, res, next) {
       });
     }
 
-    storageKey = `questions/${Date.now()}-${req.file.filename}`;
+    /**
+     * Stored filename = Course Code + original file extension,
+     * made filesystem-safe, with a numeric suffix if that exact
+     * name is already used by another question paper with the
+     * same course code (so multiple papers per course code are
+     * supported without overwriting each other).
+     */
+    const extension = detectExtension(req.file);
+
+    const storedFileName = await generateUniqueStoredFileName(
+      courseCode,
+      extension
+    );
+
+    storageKey = `questions/${storedFileName}`;
 
     await uploadFile(
       req.file.path,
@@ -219,7 +304,7 @@ async function createQuestion(req, res, next) {
       courseTitle: courseTitle.trim(),
       examType: examType.trim(),
       sessionYear: sessionYear.trim(),
-      fileName: req.file.filename,
+      fileName: storedFileName,
       originalName: req.file.originalname,
       fileSize: req.file.size,
       storageKey,
