@@ -15,6 +15,7 @@ import AIChat from "./components/AIChat";
 import ReportModal from "./components/ReportModal";
 import AdminLogin from "./components/AdminLogin";
 import AdminModeration from "./components/AdminModeration";
+import Seo from "./components/Seo";
 
 const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000";
@@ -673,7 +674,7 @@ function QuestionCard({ question }) {
       const link = document.createElement("a");
       link.href = objectUrl;
       link.download =
-        question.original_name || "question-paper";
+        question.file_name || "question-paper";
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -746,7 +747,7 @@ function QuestionCard({ question }) {
       <div className="question-card-bottom">
 
         <span className="file-name">
-          {question.original_name ||
+          {question.file_name ||
             "Question paper"}
         </span>
 
@@ -866,7 +867,7 @@ function QuestionCard({ question }) {
                 </strong>
 
                 <span>
-                  {question.original_name ||
+                  {question.file_name ||
                     "Question paper"}
                 </span>
               </div>
@@ -894,7 +895,7 @@ function QuestionCard({ question }) {
               <a
                 href={downloadedUrl}
                 download={
-                  question.original_name ||
+                  question.file_name ||
                   "question-paper"
                 }
                 className="download-btn"
@@ -2111,7 +2112,16 @@ export default function App() {
 
           <Route
             path="/"
-            element={<Home />}
+            element={
+              <>
+                <Seo
+                  title="UniQBank — University Question Bank"
+                  description="UniQBank is a university question-bank and academic resource platform for finding past exam papers, notes, books and syllabus materials."
+                  path="/"
+                />
+                <Home />
+              </>
+            }
           />
 
 
@@ -2119,7 +2129,16 @@ export default function App() {
 
           <Route
             path="/questions"
-            element={<Questions />}
+            element={
+              <>
+                <Seo
+                  title="Browse University Question Papers | UniQBank"
+                  description="Search and filter previous exam question papers by department, semester, course and exam type, then download them instantly."
+                  path="/questions"
+                />
+                <Questions />
+              </>
+            }
           />
 
 
@@ -2127,7 +2146,16 @@ export default function App() {
 
           <Route
             path="/upload"
-            element={<UploadQuestion />}
+            element={
+              <>
+                <Seo
+                  title="Upload a Question Paper | UniQBank"
+                  description="Share a previous exam question paper with other students on UniQBank's university question bank."
+                  path="/upload"
+                />
+                <UploadQuestion />
+              </>
+            }
           />
 
 
@@ -2136,11 +2164,19 @@ export default function App() {
           <Route
             path="/notes"
             element={
-              <ResourcePage
-                icon="📝"
-                title="Lecture Notes"
-                description="Lecture notes will be available here soon."
-              />
+              <>
+                <Seo
+                  title="Lecture Notes | UniQBank"
+                  description="Lecture notes will be available here soon on UniQBank."
+                  path="/notes"
+                  noindex
+                />
+                <ResourcePage
+                  icon="📝"
+                  title="Lecture Notes"
+                  description="Lecture notes will be available here soon."
+                />
+              </>
             }
           />
 
@@ -2150,11 +2186,19 @@ export default function App() {
           <Route
             path="/books"
             element={
-              <ResourcePage
-                icon="📚"
-                title="Books"
-                description="Academic books and study materials will be available here soon."
-              />
+              <>
+                <Seo
+                  title="Books | UniQBank"
+                  description="Academic books and study materials will be available here soon on UniQBank."
+                  path="/books"
+                  noindex
+                />
+                <ResourcePage
+                  icon="📚"
+                  title="Books"
+                  description="Academic books and study materials will be available here soon."
+                />
+              </>
             }
           />
 
@@ -2164,11 +2208,19 @@ export default function App() {
           <Route
             path="/syllabus"
             element={
-              <ResourcePage
-                icon="📖"
-                title="Syllabus"
-                description="University and course syllabus information will be available here soon."
-              />
+              <>
+                <Seo
+                  title="Syllabus | UniQBank"
+                  description="University and course syllabus information will be available here soon on UniQBank."
+                  path="/syllabus"
+                  noindex
+                />
+                <ResourcePage
+                  icon="📖"
+                  title="Syllabus"
+                  description="University and course syllabus information will be available here soon."
+                />
+              </>
             }
           />
 
@@ -2177,7 +2229,16 @@ export default function App() {
 
           <Route
             path="/ai"
-            element={<AIChat />}
+            element={
+              <>
+                <Seo
+                  title="AI Assignment Help | UniQBank"
+                  description="Ask UniQBank's AI assistant questions about your coursework and get instant academic help."
+                  path="/ai"
+                />
+                <AIChat />
+              </>
+            }
           />
 
 
@@ -2185,12 +2246,30 @@ export default function App() {
 
           <Route
             path="/admin/login"
-            element={<AdminLogin />}
+            element={
+              <>
+                <Seo
+                  title="Admin Login | UniQBank"
+                  path="/admin/login"
+                  noindex
+                />
+                <AdminLogin />
+              </>
+            }
           />
 
           <Route
             path="/admin/moderation"
-            element={<AdminModeration />}
+            element={
+              <>
+                <Seo
+                  title="Admin Moderation | UniQBank"
+                  path="/admin/moderation"
+                  noindex
+                />
+                <AdminModeration />
+              </>
+            }
           />
 
 
@@ -2198,7 +2277,15 @@ export default function App() {
 
           <Route
             path="*"
-            element={<NotFound />}
+            element={
+              <>
+                <Seo
+                  title="Page Not Found | UniQBank"
+                  noindex
+                />
+                <NotFound />
+              </>
+            }
           />
 
         </Routes>
