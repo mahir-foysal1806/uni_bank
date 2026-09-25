@@ -140,27 +140,27 @@ const frontendPath = path.join(__dirname, "frontend", "dist");
 
 app.use(express.static(frontendPath));
 
-app.get("*", function (req, res, next) {
-if (req.path.startsWith("/api/")) {
-return next();
-}
+app.use(function (req, res, next) {
+  if (req.path.startsWith("/api/")) {
+    return next();
+  }
 
-if (req.path === "/robots.txt") {
-return next();
-}
+  if (req.path === "/robots.txt") {
+    return next();
+  }
 
-if (req.path === "/sitemap.xml") {
-return next();
-}
+  if (req.path === "/sitemap.xml") {
+    return next();
+  }
 
-res.sendFile(
-path.join(frontendPath, "index.html"),
-function (error) {
-if (error) {
-next(error);
-}
-}
-);
+  res.sendFile(
+    path.join(frontendPath, "index.html"),
+    function (error) {
+      if (error) {
+        next(error);
+      }
+    }
+  );
 });
 
 app.use("/api", function (req, res) {
