@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BrowserRouter,
   Link,
@@ -11,12 +11,10 @@ import {
 } from "react-router-dom";
 
 import "./index.css";
+import AIChat from "./components/AIChat";
 import ReportModal from "./components/ReportModal";
-
-// Route-level code splitting: these pages are only downloaded when visited.
-const AIChat = lazy(() => import("./components/AIChat"));
-const AdminLogin = lazy(() => import("./components/AdminLogin"));
-const AdminModeration = lazy(() => import("./components/AdminModeration"));
+import AdminLogin from "./components/AdminLogin";
+import AdminModeration from "./components/AdminModeration";
 import Seo from "./components/Seo";
 
 const API_URL =
@@ -973,7 +971,7 @@ function Questions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const loadQuestions = async (signal) => {
+  const loadQuestions = async () => {
     try {
       setLoading(true);
       setError("");
@@ -1011,8 +1009,7 @@ function Questions() {
       params.set("limit", limit);
 
       const result = await apiRequest(
-        `${API_URL}/api/questions?${params.toString()}`,
-        { signal }
+        `${API_URL}/api/questions?${params.toString()}`
       );
 
       setQuestions(result?.data?.questions || []);
@@ -1035,26 +1032,18 @@ function Questions() {
         }
       );
     } catch (err) {
-      // A newer request superseded this one: ignore silently.
-      if (err.name === "AbortError") return;
-
       console.error(err);
 
       setError(
         err.message || "Unable to load question papers."
       );
-    }
-
-    if (!signal?.aborted) {
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-    loadQuestions(controller.signal);
-    return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    loadQuestions();
   }, [searchParams.toString()]);
 
   const handleSearch = (event) => {
@@ -1335,7 +1324,7 @@ function Questions() {
             </p>
 
             <button
-              onClick={() => loadQuestions()}
+              onClick={loadQuestions}
               className="primary-btn"
             >
               Try Again
@@ -2117,13 +2106,6 @@ export default function App() {
 
       <Layout>
 
-        <Suspense
-          fallback={
-            <div className="page-loading" role="status" aria-live="polite">
-              Loading…
-            </div>
-          }
-        >
         <Routes>
 
           {/* HOME */}
@@ -2307,7 +2289,6 @@ export default function App() {
           />
 
         </Routes>
-        </Suspense>
 
       </Layout>
 

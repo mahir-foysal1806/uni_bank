@@ -1,10 +1,5 @@
-class AIConfigError extends Error {}
-
-// Model is configurable; override with GEMINI_MODEL.
-function getApiUrl() {
-  const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  return `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
-}
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent";
 
 async function chatWithAI(message) {
   if (!message || !message.trim()) {
@@ -14,7 +9,7 @@ async function chatWithAI(message) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    throw new AIConfigError("GEMINI_API_KEY is not configured");
+    throw new Error("GEMINI_API_KEY is not configured");
   }
 
   const prompt = `
@@ -39,8 +34,7 @@ Student message:
 ${message.trim()}
 `;
 
-  const response = await fetch(getApiUrl(), {
-    signal: AbortSignal.timeout(20000),
+  const response = await fetch(GEMINI_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -59,12 +53,13 @@ ${message.trim()}
     }),
   });
 
-  const data = await response.json().catch(() => null);
+  const data = await response.json();
 
   if (!response.ok) {
-    const err = new Error("AI provider request failed");
-    err.status = response.status;
-    throw err;
+    throw new Error(
+      data?.error?.message ||
+      `Gemini API request failed with status ${response.status}`
+    );
   }
 
   const reply =
@@ -82,5 +77,4 @@ ${message.trim()}
 
 module.exports = {
   chatWithAI,
-  AIConfigError,
 };

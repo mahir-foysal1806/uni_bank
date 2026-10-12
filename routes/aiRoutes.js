@@ -1,51 +1,32 @@
 const express = require("express");
-const rateLimit = require("express-rate-limit");
-
-const { chatWithAI, AIConfigError } = require("../services/aiService");
-
 const router = express.Router();
 
-const MAX_MESSAGE_LENGTH = 2000;
+const { chatWithAI } = require("../services/aiService");
 
-const aiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { success: false, message: "Too many AI requests. Please try again later." },
-});
-
-// POST /api/ai/chat
-router.post("/chat", aiLimiter, async (req, res) => {
-  const message = req.body && req.body.message;
-
-  if (typeof message !== "string" || !message.trim()) {
-    return res.status(400).json({ success: false, message: "Message is required" });
-  }
-
-  if (message.length > MAX_MESSAGE_LENGTH) {
-    return res.status(400).json({
-      success: false,
-      message: `Message must be at most ${MAX_MESSAGE_LENGTH} characters.`,
-    });
-  }
-
+router.post("/chat", async (req, res) => {
   try {
-    const reply = await chatWithAI(message);
-    res.status(200).json({ success: true, reply });
-  } catch (error) {
-    console.error("AI chat error:", error.name, error.status || "");
+    const { message } = req.body;
 
-    if (error instanceof AIConfigError) {
-      return res.status(503).json({
+    if (!message || !message.trim()) {
+      return res.status(400).json({
         success: false,
-        message: "The AI assistant is not configured on this server.",
+        message: "Message is required",
       });
     }
 
-    res.status(502).json({
+    const reply = await chatWithAI(message);
+
+    res.status(200).json({
+      success: true,
+      reply,
+    });
+  } catch (error) {
+    console.error("AI chat error:", error);
+
+    res.status(500).json({
       success: false,
-      message: "The AI assistant is temporarily unavailable. Please try again.",
+      message: "AI service failed",
+      error: error.message,
     });
   }
 });

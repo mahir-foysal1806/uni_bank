@@ -1917,13 +1917,3 @@ footer {
   }
 }
 
-
-/* Route-level Suspense fallback */
-.page-loading {
-  min-height: 40vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #64748b;
-  font-size: 0.95rem;
-}

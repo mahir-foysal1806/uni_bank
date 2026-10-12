@@ -11,7 +11,6 @@ const {
 const {
   getQuestionById,
   setQuestionHidden,
-  parseId,
 } = require("../models/questionModel");
 
 /**
@@ -22,7 +21,7 @@ async function createReport(req, res, next) {
   try {
     const { questionId, reason, description } = req.body || {};
 
-    if (parseId(questionId) === null) {
+    if (!questionId || !Number.isFinite(Number(questionId))) {
       return res.status(400).json({
         success: false,
         message: "A valid questionId is required.",
@@ -43,10 +42,6 @@ async function createReport(req, res, next) {
         success: false,
         message: "Question paper not found.",
       });
-    }
-
-    if (description !== undefined && description !== null && typeof description !== "string") {
-      return res.status(400).json({ success: false, message: "description must be text." });
     }
 
     if (typeof description === "string" && description.length > 1000) {
@@ -133,14 +128,6 @@ async function reviewReport(req, res, next) {
       });
     }
 
-    if (parseId(id) === null) {
-      return res.status(400).json({ success: false, message: "Invalid report id." });
-    }
-
-    if (typeof reviewNote === "string" && reviewNote.length > 1000) {
-      return res.status(400).json({ success: false, message: "reviewNote must be under 1000 characters." });
-    }
-
     const existing = await getReportById(id);
 
     if (!existing) {
@@ -152,7 +139,7 @@ async function reviewReport(req, res, next) {
 
     const updated = await updateReportStatus(id, {
       status,
-      reviewedBy: "admin",
+      reviewedBy: req.admin?.role || "admin",
       reviewNote,
     });
 
@@ -176,15 +163,7 @@ async function hideQuestion(req, res, next) {
     const { id } = req.params;
     const { hidden } = req.body || {};
 
-    if (parseId(id) === null) {
-      return res.status(400).json({ success: false, message: "Invalid question id." });
-    }
-
-    if (hidden !== undefined && typeof hidden !== "boolean") {
-      return res.status(400).json({ success: false, message: "hidden must be true or false." });
-    }
-
-    const question = await getQuestionById(id, { includeHidden: true });
+    const question = await getQuestionById(id);
 
     if (!question) {
       return res.status(404).json({

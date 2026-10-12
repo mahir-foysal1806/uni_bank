@@ -73,7 +73,7 @@ async function uploadFile(filePath, storageKey, mimeType) {
   };
 }
 
-async function downloadFile(storageKey, res, contentType, onReady) {
+async function downloadFile(storageKey, res, contentType) {
   validateConfig();
 
   const response = await s3.send(
@@ -83,20 +83,9 @@ async function downloadFile(storageKey, res, contentType, onReady) {
     })
   );
 
-  // The object exists and is readable: only now count the download.
-  if (typeof onReady === "function") {
-    await onReady();
-  }
-
   if (contentType) {
     res.setHeader("Content-Type", contentType);
   }
-  res.setHeader("X-Content-Type-Options", "nosniff");
-
-  response.Body.on("error", (err) => {
-    console.error("Storage stream error:", err.name);
-    res.destroy(err);
-  });
 
   response.Body.pipe(res);
 }

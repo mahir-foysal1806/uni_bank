@@ -34,23 +34,6 @@ const Seo = ({ title, description, path = "", noindex = false }) => {
     }
 
     canonical.setAttribute("href", canonicalUrl);
-
-    const setProperty = (property, content) => {
-      let meta = document.querySelector(`meta[property="${property}"]`);
-
-      if (!meta) {
-        meta = document.createElement("meta");
-        meta.setAttribute("property", property);
-        document.head.appendChild(meta);
-      }
-
-      meta.setAttribute("content", content);
-    };
-
-    setProperty("og:title", title);
-    setProperty("og:description", description || "");
-    setProperty("og:url", canonicalUrl);
-    setProperty("og:type", "website");
   }, [title, description, path, noindex]);
 
   return null;

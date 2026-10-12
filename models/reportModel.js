@@ -1,11 +1,5 @@
 const pool = require("../config/db");
 
-function parseId(id) {
-  if (!/^\d{1,9}$/.test(String(id))) return null;
-  const n = parseInt(id, 10);
-  return n > 0 ? n : null;
-}
-
 /**
  * Allowed report reasons (kept in sync with the frontend modal)
  */
@@ -62,7 +56,7 @@ async function listReports({ status = "", page = 1, limit = 20 } = {}) {
   const conditions = [];
   const values = [];
 
-  if (typeof status === "string" && status.trim()) {
+  if (status.trim()) {
     values.push(status.trim());
     conditions.push(`r.status = $${values.length}`);
   }
@@ -135,12 +129,9 @@ async function listReports({ status = "", page = 1, limit = 20 } = {}) {
  * Get a single report by id
  */
 async function getReportById(id) {
-  const safeId = parseId(id);
-  if (safeId === null) return undefined;
-
   const { rows } = await pool.query(
     `SELECT * FROM reports WHERE id = $1;`,
-    [safeId]
+    [id]
   );
 
   return rows[0];
@@ -202,8 +193,8 @@ async function updateReportStatus(id, { status, reviewedBy, reviewNote }) {
   const values = [
     status,
     (reviewedBy || "").trim() || null,
-    (reviewNote || "").trim().slice(0, 1000) || null,
-    parseId(id),
+    (reviewNote || "").trim() || null,
+    id,
   ];
 
   const { rows } = await pool.query(query, values);

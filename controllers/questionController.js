@@ -11,19 +11,7 @@ const {
   insertQuestion,
   findDuplicateQuestion,
   getFileNamesByCourseCode,
-  parseId,
 } = require("../models/questionModel");
-
-const { ALLOWED: ALLOWED_EXTENSIONS } = require("../middleware/upload");
-
-const FIELD_LIMITS = {
-  department: 100,
-  semester: 100,
-  courseCode: 100,
-  courseTitle: 255,
-  examType: 100,
-  sessionYear: 100,
-};
 
 const {
   uploadFile,
@@ -72,7 +60,7 @@ function detectExtension(file) {
     .extname(file.originalname || "")
     .toLowerCase();
 
-  if (ALLOWED_EXTENSIONS[extFromName]) {
+  if (extFromName) {
     return extFromName;
   }
 
@@ -202,10 +190,6 @@ async function getMeta(req, res, next) {
  */
 async function getQuestion(req, res, next) {
   try {
-    if (parseId(req.params.id) === null) {
-      return res.status(400).json({ success: false, message: "Invalid question id." });
-    }
-
     const question = await getQuestionById(req.params.id);
 
     if (!question) {
@@ -258,19 +242,10 @@ async function createQuestion(req, res, next) {
     };
 
     for (const [field, value] of Object.entries(requiredFields)) {
-      if (typeof value !== "string" || !value.trim()) {
-        await fs.unlink(req.file.path).catch(() => {});
+      if (!value || !String(value).trim()) {
         return res.status(400).json({
           success: false,
           message: `${field} is required.`,
-        });
-      }
-
-      if (value.trim().length > FIELD_LIMITS[field]) {
-        await fs.unlink(req.file.path).catch(() => {});
-        return res.status(400).json({
-          success: false,
-          message: `${field} must be at most ${FIELD_LIMITS[field]} characters.`,
         });
       }
     }
@@ -363,10 +338,6 @@ async function createQuestion(req, res, next) {
  */
 async function downloadQuestion(req, res, next) {
   try {
-    if (parseId(req.params.id) === null) {
-      return res.status(400).json({ success: false, message: "Invalid question id." });
-    }
-
     const question = await getQuestionById(req.params.id);
 
     if (!question) {
@@ -383,24 +354,15 @@ async function downloadQuestion(req, res, next) {
       });
     }
 
+    await incrementDownloadCount(question.id);
+
     await downloadFile(
       question.storage_key,
       res,
-      getContentType(question.original_name),
-      () => incrementDownloadCount(question.id)
+      getContentType(question.original_name)
     );
   } catch (error) {
-    console.error("Download error:", error.name);
-
-    if (
-      !res.headersSent &&
-      (error.name === "NoSuchKey" || error.$metadata?.httpStatusCode === 404)
-    ) {
-      return res.status(404).json({
-        success: false,
-        message: "The file for this question paper is not available.",
-      });
-    }
+    console.error("Download error:", error);
 
     if (!res.headersSent) {
       next(error);

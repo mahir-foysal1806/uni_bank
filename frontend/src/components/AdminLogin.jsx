@@ -29,7 +29,7 @@ export default function AdminLogin() {
         throw new Error(data?.message || "Login failed.");
       }
 
-      sessionStorage.setItem("uniqbank_admin_token", data.data.token);
+      localStorage.setItem("uniqbank_admin_token", data.data.token);
       navigate("/admin/moderation");
     } catch (err) {
       setError(err.message || "Login failed.");

@@ -5,7 +5,7 @@ const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function getToken() {
-  return sessionStorage.getItem("uniqbank_admin_token") || "";
+  return localStorage.getItem("uniqbank_admin_token") || "";
 }
 
 /**
@@ -22,7 +22,7 @@ async function adminFetch(navigate, url, options = {}) {
   });
 
   if (response.status === 401) {
-    sessionStorage.removeItem("uniqbank_admin_token");
+    localStorage.removeItem("uniqbank_admin_token");
     navigate("/admin/login");
     throw new Error("Session expired.");
   }
@@ -125,7 +125,7 @@ export default function AdminModeration() {
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem("uniqbank_admin_token");
+    localStorage.removeItem("uniqbank_admin_token");
     navigate("/admin/login");
   };
 
