@@ -1,0 +1,4 @@
+-- Reference schema. The authoritative, idempotent migration is
+-- migrations/001_reports_and_visibility.sql (run with `npm run migrate`).
+-- It creates `questions` if missing, adds `is_hidden`, creates `reports`,
+-- and adds indexes, without touching existing rows.
